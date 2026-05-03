@@ -15,18 +15,21 @@ export function AuthProvider({ children }) {
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        const currentUser = session?.user ?? null
-        setUser(currentUser)
-
-        if (event === 'SIGNED_IN' && currentUser) {
-          await setupNewUser(currentUser)
-        }
+      (event, session) => {
+        setUser(session?.user ?? null)
       }
     )
 
     return () => subscription.unsubscribe()
   }, [])
+
+  // Run outside the auth state machine callback so the session is fully
+  // committed before making database requests.
+  useEffect(() => {
+    if (user) {
+      setupNewUser(user).catch(console.error)
+    }
+  }, [user])
 
   return (
     <AuthContext.Provider value={{ user, loading }}>

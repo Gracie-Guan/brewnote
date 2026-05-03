@@ -22,15 +22,27 @@ export async function setupNewUser(user) {
     .select()
     .single()
 
-  if (householdError) return
+  if (householdError) {
+    console.error('setupNewUser: failed to create household', householdError)
+    return
+  }
 
-  await supabase
+  const { error: memberError } = await supabase
     .from('household_members')
     .insert({ household_id: household.id, user_id: user.id })
 
-  await supabase
+  if (memberError) {
+    console.error('setupNewUser: failed to insert household_member', memberError)
+    return
+  }
+
+  const { error: profilesError } = await supabase
     .from('brew_profiles')
     .insert(
       DEFAULT_BREW_PROFILES.map(p => ({ ...p, household_id: household.id }))
     )
+
+  if (profilesError) {
+    console.error('setupNewUser: failed to seed brew_profiles', profilesError)
+  }
 }
