@@ -1,0 +1,50 @@
+<svg width="320" height="490" viewBox="0 0 320 490" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <g id="b">
+    <ellipse rx="11" ry="16" fill="#D4AB7A"/>
+    <path d="M0,-13 Q.5,0 0,13" stroke="#A67850" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".55"/>
+  </g>
+</defs>
+<use href="#b" transform="translate(50,35) rotate(20)"/>
+<use href="#b" transform="translate(130,28) rotate(-15)"/>
+<use href="#b" transform="translate(210,40) rotate(8)"/>
+<use href="#b" transform="translate(290,32) rotate(-22)"/>
+<use href="#b" transform="translate(25,85) rotate(-12)"/>
+<use href="#b" transform="translate(100,78) rotate(18)"/>
+<use href="#b" transform="translate(175,88) rotate(-8)"/>
+<use href="#b" transform="translate(255,80) rotate(25)"/>
+<use href="#b" transform="translate(310,85) rotate(-18)"/>
+<use href="#b" transform="translate(60,138) rotate(15)"/>
+<use href="#b" transform="translate(140,130) rotate(-20)"/>
+<use href="#b" transform="translate(220,140) rotate(10)"/>
+<use href="#b" transform="translate(285,133) rotate(-8)"/>
+<use href="#b" transform="translate(30,188) rotate(-18)"/>
+<use href="#b" transform="translate(110,195) rotate(12)"/>
+<use href="#b" transform="translate(185,183) rotate(-15)"/>
+<use href="#b" transform="translate(265,190) rotate(20)"/>
+<use href="#b" transform="translate(310,183) rotate(-8)"/>
+<use href="#b" transform="translate(55,242) rotate(8)"/>
+<use href="#b" transform="translate(130,235) rotate(-22)"/>
+<use href="#b" transform="translate(205,245) rotate(15)"/>
+<use href="#b" transform="translate(280,238) rotate(-12)"/>
+<use href="#b" transform="translate(20,292) rotate(20)"/>
+<use href="#b" transform="translate(95,285) rotate(-10)"/>
+<use href="#b" transform="translate(170,295) rotate(18)"/>
+<use href="#b" transform="translate(248,288) rotate(-20)"/>
+<use href="#b" transform="translate(308,292) rotate(8)"/>
+<use href="#b" transform="translate(50,345) rotate(-15)"/>
+<use href="#b" transform="translate(125,338) rotate(22)"/>
+<use href="#b" transform="translate(200,348) rotate(-8)"/>
+<use href="#b" transform="translate(275,342) rotate(15)"/>
+<use href="#b" transform="translate(315,335) rotate(-18)"/>
+<use href="#b" transform="translate(30,398) rotate(12)"/>
+<use href="#b" transform="translate(108,405) rotate(-18)"/>
+<use href="#b" transform="translate(183,395) rotate(10)"/>
+<use href="#b" transform="translate(258,402) rotate(-15)"/>
+<use href="#b" transform="translate(305,395) rotate(22)"/>
+<use href="#b" transform="translate(55,452) rotate(-8)"/>
+<use href="#b" transform="translate(135,445) rotate(18)"/>
+<use href="#b" transform="translate(210,455) rotate(-20)"/>
+<use href="#b" transform="translate(285,448) rotate(12)"/>
+<use href="#b" transform="translate(315,452) rotate(-15)"/>
+</svg>

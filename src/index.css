@@ -62,3 +62,8 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* Hide scrollbar on carousel while keeping scroll behavior */
+.carousel-scroll::-webkit-scrollbar {
+  display: none;
+}
