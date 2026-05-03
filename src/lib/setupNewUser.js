@@ -1,0 +1,36 @@
+import { supabase } from './supabase'
+
+const DEFAULT_BREW_PROFILES = [
+  { method_name: 'Filter', portion: 1, grams: 15 },
+  { method_name: 'Filter', portion: 2, grams: 30 },
+  { method_name: 'Espresso', portion: 1, grams: 18 },
+  { method_name: 'Moka Pot', portion: 1, grams: 20 },
+]
+
+export async function setupNewUser(user) {
+  const { data: existing } = await supabase
+    .from('household_members')
+    .select('id')
+    .eq('user_id', user.id)
+    .limit(1)
+
+  if (existing && existing.length > 0) return
+
+  const { data: household, error: householdError } = await supabase
+    .from('households')
+    .insert({ name: 'Our Household', owner_id: user.id })
+    .select()
+    .single()
+
+  if (householdError) return
+
+  await supabase
+    .from('household_members')
+    .insert({ household_id: household.id, user_id: user.id })
+
+  await supabase
+    .from('brew_profiles')
+    .insert(
+      DEFAULT_BREW_PROFILES.map(p => ({ ...p, household_id: household.id }))
+    )
+}
