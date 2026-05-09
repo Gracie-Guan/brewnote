@@ -85,7 +85,7 @@ const styles = {
     scrollbarWidth: 'none',
     msOverflowStyle: 'none',
     gap: '20px',
-    padding: '24px 20px 8px',
+    padding: '24px 28px 48px',
     alignItems: 'flex-start',
     width: '100%',
     boxSizing: 'border-box',
