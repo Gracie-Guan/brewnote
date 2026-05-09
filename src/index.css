@@ -21,6 +21,7 @@
   --font-body:    'DM Sans', Roboto, sans-serif;
 
   /* Font sizes */
+  --text-display:    28px;
   --text-heading-lg: 32px;
   --text-heading-md: 24px;
   --text-heading-sm: 20px;
@@ -63,7 +64,26 @@ body {
   flex-direction: column;
 }
 
+/* Input field focus state */
+.field-input {
+  border: 2px solid transparent;
+}
+.field-input:focus {
+  outline: none;
+  border-color: var(--color-porcelain);
+}
+
 /* Hide scrollbar on carousel while keeping scroll behavior */
 .carousel-scroll::-webkit-scrollbar {
   display: none;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }

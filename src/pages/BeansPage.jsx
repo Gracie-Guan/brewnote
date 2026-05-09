@@ -1,11 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useBeans } from '../hooks/useBeans'
 import EmptyState from '../components/beans/EmptyState'
 import BeanCarousel from '../components/beans/BeanCarousel'
+import AddCoffeeModal from '../components/beans/AddCoffeeModal'
 
 export default function BeansPage() {
-  const { beans, loading, error } = useBeans('active')
+  const { beans, householdId, loading, error, refetch } = useBeans('active')
   const [focusedBean, setFocusedBean] = useState(null)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // Open modal if nav bar "+" was tapped
+  useEffect(() => {
+    if (location.state?.openAdd) {
+      setShowAddModal(true)
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.state?.openAdd])
 
   if (loading) {
     return (
@@ -36,22 +49,21 @@ export default function BeansPage() {
       </div>
 
       {beans.length === 0 ? (
-        <EmptyState onAddBeans={() => {/* wired in step 4 */}} />
+        <EmptyState onAddBeans={() => setShowAddModal(true)} />
       ) : (
-        <>
-          <BeanCarousel
-            beans={beans}
-            onCardTap={(bean) => {/* BeanDetailModal wired in step 6 */}}
-            onFocusChange={setFocusedBean}
-          />
+        <BeanCarousel
+          beans={beans}
+          onCardTap={(bean) => {/* BeanDetailModal wired in step 6 */}}
+          onFocusChange={setFocusedBean}
+        />
+      )}
 
-          {/* LOG BREW — placeholder, wired in step 7 */}
-          <div style={styles.brewButtonRow}>
-            <button style={styles.brewButton}>
-              LOG BREW
-            </button>
-          </div>
-        </>
+      {showAddModal && (
+        <AddCoffeeModal
+          householdId={householdId}
+          onClose={() => setShowAddModal(false)}
+          onAdded={refetch}
+        />
       )}
     </div>
   )
@@ -63,39 +75,21 @@ const styles = {
     paddingBottom: '24px',
   },
   header: {
-    padding: '28px 20px 8px',
+    padding: '20px 20px 8px',
   },
   greeting: {
-    fontFamily: '"Courier Prime", monospace',
-    fontSize: '28px',
+    fontFamily: 'var(--font-display)',
+    fontSize: 'var(--text-display)',
     fontWeight: 700,
-    color: '#130801',
-    margin: '0 0 4px 0',
+    color: 'var(--color-dark)',
+    margin: 0,
     lineHeight: 1.2,
   },
   subgreeting: {
-    fontFamily: '"DM Sans", sans-serif',
-    fontSize: '14px',
-    color: '#9A8F86',
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-label)',
+    color: 'var(--color-taupe)',
     margin: 0,
-  },
-  brewButtonRow: {
-    display: 'flex',
-    justifyContent: 'center',
-    padding: '24px 20px 0',
-  },
-  brewButton: {
-    fontFamily: '"DM Sans", sans-serif',
-    fontSize: '15px',
-    fontWeight: 500,
-    letterSpacing: '0.06em',
-    color: '#F5F4ED',
-    background: 'rgba(74, 57, 51, 0.8)',
-    boxShadow: '2px 2px 4px rgba(154,143,134,0.2), inset -2px -2px 2px rgba(255,255,255,0.3)',
-    border: 'none',
-    borderRadius: '99px',
-    padding: '14px 48px',
-    cursor: 'pointer',
   },
   center: {
     display: 'flex',
@@ -104,13 +98,13 @@ const styles = {
     minHeight: '300px',
   },
   loadingText: {
-    fontFamily: '"Courier Prime", monospace',
-    fontSize: '16px',
-    color: '#9A8F86',
+    fontFamily: 'var(--font-display)',
+    fontSize: 'var(--text-body)',
+    color: 'var(--color-taupe)',
   },
   errorText: {
-    fontFamily: '"DM Sans", sans-serif',
-    fontSize: '14px',
-    color: '#B93006',
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-label)',
+    color: 'var(--color-lychee)',
   },
 }
