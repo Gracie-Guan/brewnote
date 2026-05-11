@@ -3,6 +3,15 @@ import { supabase } from '../../lib/supabase'
 import TagPill from '../ui/TagPill'
 import PillButton from '../ui/PillButton'
 
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result.split(',')[1])
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
 const PRESET_TAGS = [
   'Lychee', 'Chardonnay', 'Chamomile', 'Honey', 'Berry',
   'Caramel', 'Chocolate', 'Citrus', 'Floral', 'Nutty', 'Spice', 'Stone Fruit',
@@ -31,7 +40,10 @@ export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
   const [customInput, setCustomInput]   = useState('')
   const [submitting, setSubmitting]     = useState(false)
   const [error, setError]               = useState(null)
+  const [ocrLoading, setOcrLoading]     = useState(false)
+  const [ocrPhoto, setOcrPhoto]         = useState(null) // { url: objectURL } for preview
   const customInputRef = useRef(null)
+  const photoInputRef  = useRef(null)
 
   // Persist draft on every field change
   useEffect(() => {
@@ -62,6 +74,43 @@ export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
 
   function removeTag(tag) {
     setSelectedTags(prev => prev.filter(t => t !== tag))
+  }
+
+  async function handlePhotoChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const url = URL.createObjectURL(file)
+    setOcrPhoto({ url })
+    setOcrLoading(true)
+
+    try {
+      const base64 = await fileToBase64(file)
+      const { data, error: fnErr } = await supabase.functions.invoke('ocr', {
+        body: { image: base64 },
+      })
+
+      if (!fnErr && data && Object.keys(data).length > 0) {
+        if (data.roaster)       setRoaster(data.roaster)
+        if (data.name)          setName(data.name)
+        if (data.total_weight_g) setWeight(String(data.total_weight_g))
+        if (data.roast_date)    setRoastDate(data.roast_date)
+        if (data.process)       setProcess(data.process)
+        if (data.flavor_tags?.length) {
+          setSelectedTags(prev => {
+            const merged = [...prev]
+            for (const t of data.flavor_tags) {
+              if (!merged.includes(t)) merged.push(t)
+            }
+            return merged
+          })
+        }
+      }
+    } catch {
+      // Silent failure — user can fill fields manually
+    } finally {
+      setOcrLoading(false)
+    }
   }
 
   async function handleSubmit(e) {
@@ -113,6 +162,31 @@ export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
         <div style={styles.handle} />
 
         <h2 style={styles.title}>Add Beans</h2>
+
+        {/* Photo upload — OCR path */}
+        <label style={styles.photoArea}>
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            style={{ display: 'none' }}
+            onChange={handlePhotoChange}
+          />
+          {ocrLoading ? (
+            <span style={styles.spinner} />
+          ) : ocrPhoto ? (
+            <img src={ocrPhoto.url} alt="bag" style={styles.photoThumb} />
+          ) : (
+            <span style={styles.photoPrompt}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              Scan bag label
+            </span>
+          )}
+        </label>
 
         <form onSubmit={handleSubmit} style={styles.form}>
           {/* Required fields */}
@@ -382,5 +456,40 @@ const styles = {
     letterSpacing: '0.02em',
     padding: '14px 24px',
     flex: 1,
+  },
+  photoArea: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '72px',
+    borderRadius: '12px',
+    background: 'rgba(154, 143, 134, 0.15)',
+    border: '1.5px dashed rgba(154, 143, 134, 0.4)',
+    cursor: 'pointer',
+    marginBottom: '4px',
+    overflow: 'hidden',
+    flexShrink: 0,
+  },
+  photoPrompt: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-small)',
+    color: 'var(--color-taupe)',
+  },
+  photoThumb: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  spinner: {
+    display: 'inline-block',
+    width: '20px',
+    height: '20px',
+    border: '2px solid rgba(154, 143, 134, 0.3)',
+    borderTopColor: 'var(--color-accent)',
+    borderRadius: '50%',
+    animation: 'spin 0.7s linear infinite',
   },
 }
