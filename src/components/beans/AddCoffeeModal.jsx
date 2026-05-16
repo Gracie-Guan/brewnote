@@ -5,10 +5,32 @@ import PillButton from '../ui/PillButton'
 
 async function fileToBase64(file) {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result.split(',')[1])
-    reader.onerror = reject
-    reader.readAsDataURL(file)
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      const MAX = 2048
+      let { naturalWidth: w, naturalHeight: h } = img
+      if (w > MAX || h > MAX) {
+        const r = Math.min(MAX / w, MAX / h)
+        w = Math.round(w * r)
+        h = Math.round(h * r)
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = w
+      canvas.height = h
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+      URL.revokeObjectURL(url)
+      resolve(canvas.toDataURL('image/jpeg', 0.88).split(',')[1])
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      // Fallback for formats canvas can't render
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result.split(',')[1])
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    }
+    img.src = url
   })
 }
 
