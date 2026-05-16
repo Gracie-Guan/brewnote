@@ -84,6 +84,7 @@ const styles = {
     WebkitOverflowScrolling: 'touch',
     scrollbarWidth: 'none',
     msOverflowStyle: 'none',
+    touchAction: 'pan-x',
     gap: '20px',
     padding: '24px 28px 48px',
     alignItems: 'flex-start',

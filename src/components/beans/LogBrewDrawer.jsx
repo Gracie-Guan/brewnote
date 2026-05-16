@@ -12,6 +12,13 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
   const [dose, setDose] = useState(15)
   const [isCustom, setIsCustom] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [closing, setClosing] = useState(false)
+
+  function handleClose() {
+    if (closing) return
+    setClosing(true)
+    setTimeout(onClose, 300)
+  }
 
   // Unique method names from profiles
   const methodNames = useMemo(() => {
@@ -91,12 +98,13 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
     await supabase.from('beans').update(updatePayload).eq('id', bean.id)
 
     setSubmitting(false)
-    onClose()
+    // Fire data callbacks immediately so refetch starts during the exit animation
     if (willArchive) {
       onBeanArchived?.(bean.name)
     } else {
       onBeanUpdated?.()
     }
+    handleClose()
   }
 
   const canConfirm = dose >= 1 && dose <= bean.current_weight_g && !submitting && (isCustom || (selectedMethod && selectedPortion))
@@ -106,12 +114,18 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
     <>
       {/* Backdrop */}
       <div
-        onClick={onClose}
-        style={styles.backdrop}
+        onClick={handleClose}
+        style={{
+          ...styles.backdrop,
+          animation: closing ? 'fade-out 0.3s ease forwards' : 'fade-in 0.2s ease',
+        }}
       />
 
       {/* Drawer */}
-      <div style={styles.drawer}>
+      <div style={{
+        ...styles.drawer,
+        animation: closing ? 'slide-down-out 0.3s ease-in forwards' : 'slide-up 0.3s ease-out',
+      }}>
         {/* Drag handle */}
         <div style={styles.handle} />
 
@@ -121,7 +135,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
             <div style={styles.headerLabel}>Logging brew for</div>
             <div style={styles.beanName}>{bean.name}</div>
           </div>
-          <button onClick={onClose} style={styles.closeBtn} aria-label="Close">
+          <button onClick={handleClose} style={styles.closeBtn} aria-label="Close">
             ✕
           </button>
         </div>
