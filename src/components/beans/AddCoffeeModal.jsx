@@ -200,13 +200,16 @@ export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
           ) : ocrPhoto ? (
             <img src={ocrPhoto.url} alt="bag" style={styles.photoThumb} />
           ) : (
-            <span style={styles.photoPrompt}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
+            <div style={styles.photoPrompt}>
+              <svg width="32" height="28" viewBox="0 0 32 28" fill="none">
+                <path d="M1 8V3a2 2 0 0 1 2-2h5" stroke="var(--color-accent)" strokeWidth="2.2" strokeLinecap="round"/>
+                <path d="M31 8V3a2 2 0 0 0-2-2h-5" stroke="var(--color-accent)" strokeWidth="2.2" strokeLinecap="round"/>
+                <path d="M1 20v5a2 2 0 0 0 2 2h5" stroke="var(--color-accent)" strokeWidth="2.2" strokeLinecap="round"/>
+                <path d="M31 20v5a2 2 0 0 1-2 2h-5" stroke="var(--color-accent)" strokeWidth="2.2" strokeLinecap="round"/>
               </svg>
-              Scan bag label
-            </span>
+              <span style={styles.photoTitle}>Upload Bag Photo for Scan</span>
+              <span style={styles.photoSubtitle}>Please make sure the photo include{'\n'}core information of the bean.</span>
+            </div>
           )}
         </label>
 
@@ -483,22 +486,36 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '72px',
-    borderRadius: '12px',
-    background: 'rgba(154, 143, 134, 0.15)',
-    border: '1.5px dashed rgba(154, 143, 134, 0.4)',
+    minHeight: '180px',
+    borderRadius: '16px',
+    background: 'rgba(237, 235, 235, 0.6)',
+    border: '1.5px solid rgba(154, 143, 134, 0.25)',
     cursor: 'pointer',
-    marginBottom: '4px',
+    marginBottom: '16px',
     overflow: 'hidden',
     flexShrink: 0,
   },
   photoPrompt: {
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
-    gap: '8px',
+    gap: '10px',
+    padding: '32px 24px',
+  },
+  photoTitle: {
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-body)',
+    fontWeight: 500,
+    color: 'var(--color-dark)',
+    textAlign: 'center',
+  },
+  photoSubtitle: {
     fontFamily: 'var(--font-body)',
     fontSize: 'var(--text-small)',
     color: 'var(--color-taupe)',
+    textAlign: 'center',
+    whiteSpace: 'pre-line',
+    lineHeight: 1.5,
   },
   photoThumb: {
     width: '100%',
