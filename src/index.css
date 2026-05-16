@@ -83,6 +83,11 @@ body {
   to   { transform: translateY(0); }
 }
 
+@keyframes slide-down {
+  from { transform: translateX(-50%) translateY(-120%); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }

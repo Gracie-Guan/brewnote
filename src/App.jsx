@@ -71,7 +71,12 @@ function FloatingActionBar() {
       </PillButton>
 
       {/* LOG BREW center pill */}
-      <PillButton variant="glass" style={styles.centerPill} aria-label="Log brew">
+      <PillButton
+        variant="glass"
+        onClick={() => navigate('/beans', { state: { openLogBrew: true } })}
+        style={styles.centerPill}
+        aria-label="Log brew"
+      >
         <img src={beanIcon} alt="" aria-hidden="true" width={19} height={24} style={{ flexShrink: 0 }} />
         <span style={styles.centerPillText}>LOG BREW</span>
       </PillButton>

@@ -4,21 +4,41 @@ import { useBeans } from '../hooks/useBeans'
 import EmptyState from '../components/beans/EmptyState'
 import BeanCarousel from '../components/beans/BeanCarousel'
 import AddCoffeeModal from '../components/beans/AddCoffeeModal'
+import BeanDetailModal from '../components/beans/BeanDetailModal'
+import LogBrewDrawer from '../components/beans/LogBrewDrawer'
+import Toast from '../components/ui/Toast'
 
 export default function BeansPage() {
   const { beans, householdId, loading, error, refetch } = useBeans('active')
   const [focusedBean, setFocusedBean] = useState(null)
+  const [selectedBean, setSelectedBean] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showLogBrew, setShowLogBrew] = useState(false)
+  const [toast, setToast] = useState(null)
   const location = useLocation()
   const navigate = useNavigate()
 
-  // Open modal if nav bar "+" was tapped
+  // Open Add modal if nav bar "+" was tapped
   useEffect(() => {
     if (location.state?.openAdd) {
       setShowAddModal(true)
       navigate(location.pathname, { replace: true, state: {} })
     }
   }, [location.state?.openAdd])
+
+  // Open Log Brew drawer if action bar button was tapped
+  useEffect(() => {
+    if (location.state?.openLogBrew) {
+      navigate(location.pathname, { replace: true, state: {} })
+      // Only open if there are beans in the carousel
+      if (beans.length > 0) setShowLogBrew(true)
+    }
+  }, [location.state?.openLogBrew, beans.length])
+
+  function handleBeanArchived(beanName) {
+    setToast(`☕ ${beanName} finished — moved to Past`)
+    refetch()
+  }
 
   if (loading) {
     return (
@@ -35,6 +55,8 @@ export default function BeansPage() {
       </div>
     )
   }
+
+  const activeFocusedBean = focusedBean ?? (beans.length > 0 ? beans[0] : null)
 
   return (
     <div style={styles.page}>
@@ -53,7 +75,7 @@ export default function BeansPage() {
       ) : (
         <BeanCarousel
           beans={beans}
-          onCardTap={(bean) => {/* BeanDetailModal wired in step 6 */}}
+          onCardTap={setSelectedBean}
           onFocusChange={setFocusedBean}
         />
       )}
@@ -64,6 +86,29 @@ export default function BeansPage() {
           onClose={() => setShowAddModal(false)}
           onAdded={refetch}
         />
+      )}
+
+      {selectedBean && (
+        <BeanDetailModal
+          bean={selectedBean}
+          householdId={householdId}
+          onClose={() => setSelectedBean(null)}
+          onBeanUpdated={refetch}
+        />
+      )}
+
+      {showLogBrew && activeFocusedBean && (
+        <LogBrewDrawer
+          bean={activeFocusedBean}
+          householdId={householdId}
+          onClose={() => setShowLogBrew(false)}
+          onBeanUpdated={refetch}
+          onBeanArchived={handleBeanArchived}
+        />
+      )}
+
+      {toast && (
+        <Toast message={toast} onDismiss={() => setToast(null)} />
       )}
     </div>
   )
