@@ -284,10 +284,12 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
 
         {/* Dose */}
         <div style={styles.section}>
-          <div style={styles.sectionLabel}>Dose</div>
+          <div style={styles.doseLabelRow}>
+            <span style={{ ...styles.sectionLabel, marginBottom: 0 }}>Dose</span>
+            <span style={styles.gramsBadge}>grams</span>
+          </div>
           <div style={styles.doseRow}>
             <span style={styles.doseValue}>{dose}</span>
-            <span style={styles.gramsBadge}>grams</span>
           </div>
           <TickRuler dose={dose} sliderMax={sliderMax} onChange={setDose} />
         </div>
@@ -380,6 +382,12 @@ const styles = {
   },
   section: {
     marginBottom: '28px',
+  },
+  doseLabelRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    marginBottom: '14px',
   },
   sectionLabel: {
     fontFamily: 'var(--font-body)',
