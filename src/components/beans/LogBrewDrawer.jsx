@@ -1,8 +1,122 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useLayoutEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { useBrewProfiles } from '../../hooks/useBrewProfiles'
 import beanIcon from '../../assets/bean_icon_fill.svg'
+
+const PX_PER_GRAM = 8
+
+// Scrolling ruler: the tick strip moves, the center indicator stays fixed.
+function TickRuler({ dose, sliderMax, onChange }) {
+  const outerRef = useRef(null)
+  const [containerWidth, setContainerWidth] = useState(300)
+  const isDraggingRef = useRef(false)
+  const dragStartXRef = useRef(0)
+  const dragStartDoseRef = useRef(0)
+
+  useLayoutEffect(() => {
+    if (outerRef.current) setContainerWidth(outerRef.current.clientWidth)
+  }, [])
+
+  // Ruler left edge = containerWidth/2 (places the 0g mark at center when dose=0)
+  // translateX shifts left as dose increases, keeping the current-dose mark at center
+  const rulerTranslateX = containerWidth / 2 - dose * PX_PER_GRAM
+  const rulerWidth = sliderMax * PX_PER_GRAM + containerWidth
+
+  function onPointerDown(e) {
+    isDraggingRef.current = true
+    dragStartXRef.current = e.clientX
+    dragStartDoseRef.current = dose
+    e.currentTarget.setPointerCapture(e.pointerId)
+    e.preventDefault()
+  }
+
+  function onPointerMove(e) {
+    if (!isDraggingRef.current) return
+    const deltaPx = dragStartXRef.current - e.clientX
+    const next = Math.max(1, Math.min(sliderMax, Math.round(dragStartDoseRef.current + deltaPx / PX_PER_GRAM)))
+    onChange(next)
+  }
+
+  function onPointerUp() { isDraggingRef.current = false }
+
+  return (
+    <div ref={outerRef} style={ruler.outer}>
+      {/* Drag zone — masked for progressive blur */}
+      <div
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        style={ruler.dragZone}
+      >
+        {/* Tick strip — translates based on dose */}
+        <div
+          style={{
+            ...ruler.tickStrip,
+            width: `${rulerWidth}px`,
+            transform: `translateX(${rulerTranslateX}px)`,
+          }}
+        />
+      </div>
+
+      {/* Fixed center indicator — lives outside the masked layer */}
+      <div style={ruler.indicator} />
+    </div>
+  )
+}
+
+const ruler = {
+  outer: {
+    position: 'relative',
+    height: '48px',
+    userSelect: 'none',
+  },
+  dragZone: {
+    position: 'absolute',
+    inset: 0,
+    overflow: 'hidden',
+    cursor: 'ew-resize',
+    touchAction: 'none',
+    WebkitMaskImage: 'linear-gradient(90deg, transparent 0%, black 18%, black 82%, transparent 100%)',
+    maskImage: 'linear-gradient(90deg, transparent 0%, black 18%, black 82%, transparent 100%)',
+  },
+  tickStrip: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    background: `
+      linear-gradient(
+        transparent calc(50% - 0.5px),
+        rgba(154,143,134,0.3) calc(50% - 0.5px),
+        rgba(154,143,134,0.3) calc(50% + 0.5px),
+        transparent calc(50% + 0.5px)
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(154,143,134,0.38) 0px,
+        rgba(154,143,134,0.38) 1.5px,
+        transparent 1.5px,
+        transparent ${PX_PER_GRAM}px
+      )
+    `,
+  },
+  indicator: {
+    position: 'absolute',
+    top: '6px',
+    bottom: '6px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '2.5px',
+    background: 'var(--color-accent)',
+    borderRadius: '99px',
+    boxShadow: '0 0 8px rgba(234,104,22,0.45)',
+    pointerEvents: 'none',
+  },
+}
+
+// ─────────────────────────────────────────
 
 export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdated, onBeanArchived }) {
   const { user } = useAuth()
@@ -21,25 +135,18 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
     setTimeout(onClose, 300)
   }
 
-  // Unique method names from profiles
-  const methodNames = useMemo(() => {
-    return [...new Set(profiles.map(p => p.method_name))]
-  }, [profiles])
+  const methodNames = useMemo(() => [...new Set(profiles.map(p => p.method_name))], [profiles])
 
-  // Portions available for selected method
   const availablePortions = useMemo(() => {
     if (!selectedMethod) return []
-    return profiles
-      .filter(p => p.method_name === selectedMethod)
-      .map(p => p.portion)
-      .sort((a, b) => a - b)
+    return profiles.filter(p => p.method_name === selectedMethod).map(p => p.portion).sort((a, b) => a - b)
   }, [profiles, selectedMethod])
 
   function handleMethodSelect(method) {
     setSelectedMethod(method)
     setIsCustom(false)
-    const methodProfiles = profiles.filter(p => p.method_name === method)
-    const defaultProfile = methodProfiles.find(p => p.portion === 1) ?? methodProfiles[0]
+    const defaultProfile = profiles.filter(p => p.method_name === method).find(p => p.portion === 1)
+      ?? profiles.find(p => p.method_name === method)
     if (defaultProfile) {
       setSelectedPortion(defaultProfile.portion)
       setDose(defaultProfile.grams)
@@ -58,11 +165,6 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
     if (profile) setDose(profile.grams)
   }
 
-  function handleDoseInput(val) {
-    const n = parseInt(val, 10)
-    if (!isNaN(n) && n >= 1) setDose(Math.min(n, bean.current_weight_g))
-  }
-
   async function handleConfirm() {
     if (!dose || dose < 1 || submitting) return
     setSubmitting(true)
@@ -71,48 +173,34 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
       ? profiles.find(p => p.method_name === selectedMethod && p.portion === selectedPortion)
       : null
 
-    const { error: logErr } = await supabase
-      .from('consumption_logs')
-      .insert({
-        bean_id: bean.id,
-        household_id: householdId,
-        user_id: user.id,
-        brew_profile_id: matchedProfile?.id ?? null,
-        grams_used: dose,
-      })
+    const { error: logErr } = await supabase.from('consumption_logs').insert({
+      bean_id: bean.id,
+      household_id: householdId,
+      user_id: user.id,
+      brew_profile_id: matchedProfile?.id ?? null,
+      grams_used: dose,
+    })
 
-    if (logErr) {
-      setSubmitting(false)
-      return
-    }
+    if (logErr) { setSubmitting(false); return }
 
     const newWeight = bean.current_weight_g - dose
     const willArchive = newWeight <= 0
-
     const updatePayload = { current_weight_g: Math.max(newWeight, 0) }
-    if (willArchive) {
-      updatePayload.status = 'archived'
-      updatePayload.archived_at = new Date().toISOString()
-    }
+    if (willArchive) { updatePayload.status = 'archived'; updatePayload.archived_at = new Date().toISOString() }
 
     await supabase.from('beans').update(updatePayload).eq('id', bean.id)
 
     setSubmitting(false)
-    if (willArchive) {
-      onBeanArchived?.(bean.name)
-    } else {
-      onBeanUpdated?.()
-    }
+    if (willArchive) onBeanArchived?.(bean.name)
+    else onBeanUpdated?.()
     handleClose()
   }
 
   const sliderMax = Math.max(bean.current_weight_g, 1)
   const canConfirm = dose >= 1 && dose <= bean.current_weight_g && !submitting && (isCustom || selectedPortion !== null)
-  const indicatorPct = ((dose - 1) / Math.max(sliderMax - 1, 1)) * 100
 
   return (
     <>
-      {/* Backdrop */}
       <div
         onClick={handleClose}
         style={{
@@ -121,7 +209,6 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
         }}
       />
 
-      {/* Drawer */}
       <div style={{
         ...styles.drawer,
         animation: closing ? 'slide-down-out 0.3s ease-in forwards' : 'slide-up 0.3s ease-out',
@@ -130,9 +217,9 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
         {/* Header */}
         <div style={styles.header}>
           <div style={styles.beanIconCircle}>
-            <img src={beanIcon} width={28} height={28} alt="" style={{ display: 'block' }} />
+            <img src={beanIcon} width={26} height={26} alt="" style={{ display: 'block' }} />
           </div>
-          <div style={styles.headerText}>
+          <div>
             <div style={styles.coffeLogLabel}>Coffee Log</div>
             <div style={styles.beanName}>{bean.name}</div>
           </div>
@@ -144,24 +231,17 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
           {profilesLoading ? (
             <div style={styles.loadingText}>loading…</div>
           ) : (
-            <div style={styles.pillGrid}>
+            <div style={styles.chipRow}>
               {methodNames.map(method => (
                 <button
                   key={method}
                   onClick={() => handleMethodSelect(method)}
-                  style={{
-                    ...styles.largePill,
-                    ...(selectedMethod === method && !isCustom
-                      ? styles.largePillSelected
-                      : styles.largePillUnselected),
-                  }}
+                  style={selectedMethod === method && !isCustom ? chip.selected : chip.unselected}
                 >
                   {method}
                 </button>
               ))}
-              <button style={{ ...styles.largePill, ...styles.largePillCustom }}>
-                +
-              </button>
+              <button style={chip.muted}>+</button>
             </div>
           )}
         </div>
@@ -169,7 +249,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
         {/* Portion */}
         <div style={styles.section}>
           <div style={styles.sectionLabel}>Portion</div>
-          <div style={styles.pillRow}>
+          <div style={styles.chipRow}>
             {[1, 2].map(p => {
               const available = !selectedMethod || availablePortions.includes(p)
               const active = selectedPortion === p && !isCustom
@@ -178,12 +258,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
                   key={p}
                   onClick={() => available && handlePortionSelect(p)}
                   disabled={!available}
-                  style={{
-                    ...styles.largePill,
-                    ...styles.portionPillSize,
-                    ...(active ? styles.largePillSelected : styles.largePillUnselected),
-                    ...(!available ? styles.largePillCustom : {}),
-                  }}
+                  style={active ? chip.selected : available ? chip.unselected : chip.muted}
                 >
                   {p}
                 </button>
@@ -191,11 +266,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
             })}
             <button
               onClick={() => handlePortionSelect('custom')}
-              style={{
-                ...styles.largePill,
-                ...styles.portionPillSize,
-                ...(isCustom ? styles.largePillSelected : styles.largePillCustom),
-              }}
+              style={isCustom ? chip.selected : chip.muted}
             >
               — g
             </button>
@@ -209,42 +280,16 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
             <span style={styles.doseValue}>{dose}</span>
             <span style={styles.gramsBadge}>grams</span>
           </div>
-
-          {/* Tick-ruler slider */}
-          <div style={styles.sliderWrapper}>
-            {/* Tick marks + center line */}
-            <div style={styles.tickTrack} />
-            {/* Orange indicator */}
-            <div
-              style={{
-                ...styles.tickIndicator,
-                left: `${indicatorPct}%`,
-              }}
-            />
-            {/* Invisible range input for interaction */}
-            <input
-              type="range"
-              min={1}
-              max={sliderMax}
-              value={dose}
-              onChange={e => setDose(Number(e.target.value))}
-              className="tick-slider-input"
-            />
-          </div>
+          <TickRuler dose={dose} sliderMax={sliderMax} onChange={setDose} />
         </div>
 
-        {/* Bottom buttons */}
+        {/* Bottom */}
         <div style={styles.bottomRow}>
-          <button onClick={handleClose} style={styles.cancelBtn}>
-            Cancel
-          </button>
+          <button onClick={handleClose} style={styles.cancelBtn}>Cancel</button>
           <button
             onClick={handleConfirm}
             disabled={!canConfirm}
-            style={{
-              ...styles.confirmBtn,
-              ...(!canConfirm ? styles.confirmBtnDisabled : {}),
-            }}
+            style={{ ...styles.confirmBtn, ...(!canConfirm ? styles.confirmBtnDisabled : {}) }}
           >
             {submitting ? 'Logging…' : 'Confirm Log'}
           </button>
@@ -253,6 +298,25 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
       </div>
     </>
   )
+}
+
+// Chip label styles (matches TagPill)
+const chipBase = {
+  fontFamily: 'var(--font-body)',
+  fontSize: 'var(--text-small)',
+  fontWeight: 400,
+  borderRadius: '99px',
+  padding: '6px 14px',
+  cursor: 'pointer',
+  border: 'none',
+  lineHeight: 1,
+  transition: 'background 0.15s ease, color 0.15s ease',
+  whiteSpace: 'nowrap',
+}
+const chip = {
+  unselected: { ...chipBase, background: 'var(--color-porcelain)', border: '1px solid #FFFFFF', color: 'var(--color-mid-roast)' },
+  selected:   { ...chipBase, background: 'var(--color-mid-roast)', border: '1px solid #3E3232', color: 'var(--color-porcelain)' },
+  muted:      { ...chipBase, background: 'rgba(154,143,134,0.2)', color: 'var(--color-taupe)' },
 }
 
 const styles = {
@@ -276,8 +340,6 @@ const styles = {
     maxHeight: '90dvh',
     overflowY: 'auto',
   },
-
-  // Header
   header: {
     display: 'flex',
     alignItems: 'center',
@@ -294,17 +356,11 @@ const styles = {
     justifyContent: 'center',
     flexShrink: 0,
   },
-  headerText: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2px',
-  },
   coffeLogLabel: {
     fontFamily: 'var(--font-body)',
     fontSize: 'var(--text-small)',
     color: 'var(--color-taupe)',
-    fontWeight: 400,
-    letterSpacing: '0.02em',
+    marginBottom: '2px',
   },
   beanName: {
     fontFamily: 'var(--font-display)',
@@ -313,8 +369,6 @@ const styles = {
     color: 'var(--color-dark)',
     lineHeight: 1.15,
   },
-
-  // Sections
   section: {
     marginBottom: '28px',
   },
@@ -330,52 +384,11 @@ const styles = {
     fontSize: 'var(--text-label)',
     color: 'var(--color-taupe)',
   },
-
-  // Pill buttons (shared base)
-  pillGrid: {
+  chipRow: {
     display: 'flex',
     flexWrap: 'wrap',
-    gap: '10px',
+    gap: '8px',
   },
-  pillRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '10px',
-  },
-  largePill: {
-    fontFamily: 'var(--font-body)',
-    fontSize: 'var(--text-body)',
-    fontWeight: 500,
-    padding: '14px 28px',
-    borderRadius: '99px',
-    border: 'none',
-    cursor: 'pointer',
-    lineHeight: 1,
-    transition: 'background 0.15s, color 0.15s',
-    whiteSpace: 'nowrap',
-  },
-  largePillUnselected: {
-    background: 'var(--color-porcelain)',
-    color: 'var(--color-dark)',
-    boxShadow: '3px 4px 8px rgba(154,143,134,0.18), inset -1px -2px 3px rgba(255,255,255,0.8)',
-  },
-  largePillSelected: {
-    background: 'var(--color-mid-roast)',
-    color: 'var(--color-porcelain)',
-    boxShadow: '2px 2px 6px rgba(74,57,51,0.25)',
-  },
-  largePillCustom: {
-    background: 'rgba(154, 143, 134, 0.22)',
-    color: 'var(--color-taupe)',
-    boxShadow: 'none',
-  },
-  portionPillSize: {
-    padding: '14px 24px',
-    minWidth: '72px',
-    textAlign: 'center',
-  },
-
-  // Dose display
   doseRow: {
     display: 'flex',
     alignItems: 'flex-end',
@@ -402,46 +415,6 @@ const styles = {
     marginBottom: '10px',
     background: 'rgba(234, 104, 22, 0.06)',
   },
-
-  // Tick-ruler slider
-  sliderWrapper: {
-    position: 'relative',
-    height: '40px',
-    width: '100%',
-  },
-  tickTrack: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    height: '28px',
-    borderRadius: '4px',
-    // Center horizontal line + vertical tick marks
-    background: `
-      linear-gradient(transparent 46%, rgba(154,143,134,0.3) 46%, rgba(154,143,134,0.3) 54%, transparent 54%),
-      repeating-linear-gradient(
-        90deg,
-        rgba(154,143,134,0.3) 0px,
-        rgba(154,143,134,0.3) 1.5px,
-        transparent 1.5px,
-        transparent 10px
-      )
-    `,
-  },
-  tickIndicator: {
-    position: 'absolute',
-    top: '4px',
-    bottom: '4px',
-    width: '3px',
-    background: 'var(--color-accent)',
-    borderRadius: '99px',
-    transform: 'translateX(-50%)',
-    pointerEvents: 'none',
-    boxShadow: '0 0 6px rgba(234,104,22,0.4)',
-  },
-
-  // Bottom buttons
   bottomRow: {
     display: 'flex',
     gap: '12px',
