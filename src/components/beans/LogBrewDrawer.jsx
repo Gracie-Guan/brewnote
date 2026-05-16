@@ -57,7 +57,10 @@ function TickRuler({ dose, sliderMax, onChange }) {
             width: `${rulerWidth}px`,
             transform: `translateX(${rulerTranslateX}px)`,
           }}
-        />
+        >
+          {/* Thin horizontal baseline */}
+          <div style={ruler.baseline} />
+        </div>
       </div>
 
       {/* Fixed center indicator — lives outside the masked layer */}
@@ -86,21 +89,27 @@ const ruler = {
     top: 0,
     bottom: 0,
     left: 0,
-    background: `
-      linear-gradient(
-        transparent calc(50% - 0.5px),
-        rgba(154,143,134,0.3) calc(50% - 0.5px),
-        rgba(154,143,134,0.3) calc(50% + 0.5px),
-        transparent calc(50% + 0.5px)
-      ),
-      repeating-linear-gradient(
-        90deg,
-        rgba(154,143,134,0.38) 0px,
-        rgba(154,143,134,0.38) 1.5px,
-        transparent 1.5px,
-        transparent ${PX_PER_GRAM}px
-      )
-    `,
+    // backgroundSize controls tick height: 8px wide tile, 16px tall — centered in 40px container
+    backgroundImage: `linear-gradient(
+      90deg,
+      rgba(154,143,134,0.45) 0px,
+      rgba(154,143,134,0.45) 1.5px,
+      transparent 1.5px,
+      transparent ${PX_PER_GRAM}px
+    )`,
+    backgroundSize: `${PX_PER_GRAM}px 16px`,
+    backgroundRepeat: 'repeat-x',
+    backgroundPosition: '0 50%',
+  },
+  baseline: {
+    position: 'absolute',
+    top: '50%',
+    left: 0,
+    right: 0,
+    height: '1px',
+    background: 'rgba(154,143,134,0.2)',
+    transform: 'translateY(-50%)',
+    pointerEvents: 'none',
   },
   indicator: {
     position: 'absolute',
@@ -392,6 +401,7 @@ const styles = {
   doseRow: {
     display: 'flex',
     alignItems: 'flex-end',
+    justifyContent: 'center',
     gap: '10px',
     marginBottom: '20px',
   },
