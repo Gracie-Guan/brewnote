@@ -101,6 +101,7 @@ const ruler = {
     backgroundRepeat: 'repeat-x',
     backgroundPosition: '0 50%',
   },
+
   baseline: {
     position: 'absolute',
     top: '50%',
@@ -113,10 +114,10 @@ const ruler = {
   },
   indicator: {
     position: 'absolute',
-    top: '6px',
-    bottom: '6px',
+    top: '50%',
     left: '50%',
-    transform: 'translateX(-50%)',
+    transform: 'translate(-50%, -50%)',
+    height: '32px',
     width: '2.5px',
     background: 'var(--color-accent)',
     borderRadius: '99px',
@@ -273,12 +274,28 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
                 </button>
               )
             })}
-            <button
-              onClick={() => handlePortionSelect('custom')}
-              style={isCustom ? chip.selected : chip.muted}
-            >
-              — g
-            </button>
+            <label style={{ ...(isCustom ? chip.selected : chip.muted), display: 'inline-flex', alignItems: 'center', gap: '2px', cursor: 'text' }}>
+              <input
+                type="number"
+                min="1"
+                max={sliderMax}
+                value={isCustom ? dose : ''}
+                placeholder="—"
+                className="dose-input"
+                onFocus={() => { setIsCustom(true); setSelectedPortion('custom') }}
+                onChange={e => {
+                  const v = parseInt(e.target.value, 10)
+                  if (!isNaN(v)) setDose(Math.max(1, Math.min(sliderMax, v)))
+                }}
+                style={{
+                  background: 'none', border: 'none', outline: 'none',
+                  width: '28px', fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-label)', fontWeight: 400,
+                  color: 'inherit', textAlign: 'center', padding: 0,
+                }}
+              />
+              <span>g</span>
+            </label>
           </div>
         </div>
 
@@ -314,7 +331,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
 // Chip label styles (matches TagPill)
 const chipBase = {
   fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-small)',
+  fontSize: 'var(--text-label)',
   fontWeight: 400,
   borderRadius: '99px',
   padding: '6px 14px',
@@ -411,7 +428,7 @@ const styles = {
     alignItems: 'flex-end',
     justifyContent: 'center',
     gap: '10px',
-    marginBottom: '20px',
+    marginBottom: 0,
   },
   doseValue: {
     fontFamily: 'var(--font-body)',
@@ -430,7 +447,6 @@ const styles = {
     border: '1.5px solid rgba(234, 104, 22, 0.35)',
     borderRadius: '99px',
     padding: '4px 10px',
-    marginBottom: '10px',
     background: 'rgba(234, 104, 22, 0.06)',
   },
   bottomRow: {
