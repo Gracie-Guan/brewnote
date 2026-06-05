@@ -6,6 +6,7 @@ import BeanCarousel from '../components/beans/BeanCarousel'
 import AddCoffeeModal from '../components/beans/AddCoffeeModal'
 import BeanDetailModal from '../components/beans/BeanDetailModal'
 import LogBrewDrawer from '../components/beans/LogBrewDrawer'
+import TopTabNav from '../components/ui/TopTabNav'
 import Toast from '../components/ui/Toast'
 
 export default function BeansPage() {
@@ -63,12 +64,9 @@ export default function BeansPage() {
       {/* Greeting header */}
       <div style={styles.header}>
         <h1 style={styles.greeting}>Coffee Yet?</h1>
-        <p style={styles.subgreeting}>
-          {beans.length === 0
-            ? 'Your jar is waiting.'
-            : `${beans.length} bean${beans.length !== 1 ? 's' : ''} in the jar`}
-        </p>
       </div>
+
+      <TopTabNav />
 
       {beans.length === 0 ? (
         <EmptyState onAddBeans={() => setShowAddModal(true)} />
@@ -120,21 +118,17 @@ const styles = {
     paddingBottom: '24px',
   },
   header: {
-    padding: '20px 20px 8px',
+    padding: '48px 20px 4px',
   },
   greeting: {
     fontFamily: 'var(--font-display)',
     fontSize: 'var(--text-display)',
-    fontWeight: 700,
+    fontWeight: 400,
     color: 'var(--color-dark)',
     margin: 0,
     lineHeight: 1.2,
-  },
-  subgreeting: {
-    fontFamily: 'var(--font-body)',
-    fontSize: 'var(--text-label)',
-    color: 'var(--color-taupe)',
-    margin: 0,
+    letterSpacing: '-0.05em',
+    textShadow: '0px 6px 10px rgba(154,143,134,0.2)',
   },
   center: {
     display: 'flex',

@@ -85,7 +85,7 @@ const styles = {
     scrollbarWidth: 'none',
     msOverflowStyle: 'none',
     touchAction: 'pan-x',
-    gap: '20px',
+    gap: '24px',
     padding: '24px 28px 48px',
     alignItems: 'flex-start',
     width: '100%',

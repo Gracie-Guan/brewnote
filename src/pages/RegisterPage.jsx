@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const inviteToken = searchParams.get('invite')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -22,7 +24,7 @@ export default function RegisterPage() {
     }
     // If session exists, user is signed in immediately (email confirm disabled)
     if (data.session) {
-      navigate('/beans')
+      navigate(inviteToken ? `/invite/${inviteToken}` : '/beans')
     } else {
       setConfirmMessage('Check your email to confirm your account, then sign in.')
     }

@@ -1,0 +1,57 @@
+import { useState } from 'react'
+
+// Inlined from bean_icon_fill.svg — fill is controlled via prop
+function BeanIcon({ filled }) {
+  const color = filled ? 'var(--color-accent)' : 'rgba(154,143,134,0.3)'
+  return (
+    <svg width="22" height="28" viewBox="0 0 19 24" fill="none" aria-hidden="true">
+      <path
+        d="M9.3916 0C14.5781 0.00020547 18.7822 5.37271 18.7822 12C18.7822 18.6273 14.5781 23.9998 9.3916 24C4.20493 24 0 18.6274 0 12C0 5.37258 4.20493 0 9.3916 0ZM9.30957 2.04395C8.86765 1.71308 8.24126 1.80345 7.91016 2.24512C7.57919 2.68719 7.6683 3.31449 8.11035 3.64551C8.44196 3.89384 8.99752 4.407 9.48828 5.08008C9.98182 5.75709 10.356 6.52201 10.4395 7.2832C10.4853 7.70231 10.4001 8.25746 10.1748 8.96094C9.95269 9.65442 9.62349 10.4076 9.25586 11.208C8.89732 11.9886 8.49528 12.8297 8.17285 13.6201C7.85185 14.407 7.57149 15.2331 7.48535 16.0127C7.34101 17.3204 7.78859 18.5819 8.31738 19.5635C8.85222 20.5562 9.5322 21.3788 10.0176 21.8525C10.4128 22.238 11.046 22.2301 11.4316 21.835C11.8173 21.4397 11.8092 20.8066 11.4141 20.4209C11.0599 20.0751 10.5081 19.4124 10.0781 18.6143C9.64223 17.8051 9.39145 16.9687 9.47266 16.2324C9.52763 15.7348 9.72153 15.1152 10.0234 14.375C10.3242 13.6379 10.6952 12.8682 11.0742 12.043C11.444 11.2378 11.8179 10.389 12.0801 9.57031C12.339 8.76166 12.5184 7.89328 12.4277 7.06543C12.2924 5.83149 11.7137 4.73703 11.1045 3.90137C10.4923 3.06178 9.79479 2.40731 9.30957 2.04395Z"
+        fill={color}
+      />
+    </svg>
+  )
+}
+
+// pendingRating: visually selected but not yet saved
+// onRate: called with score (1–5) when a bean is tapped
+export default function BeanRating({ avgRating, pendingRating, onRate }) {
+  const [hovered, setHovered] = useState(null)
+  const displayFilled = hovered ?? pendingRating ?? (avgRating ? Math.round(avgRating) : 0)
+
+  return (
+    <div style={styles.beans}>
+      {[1, 2, 3, 4, 5].map(n => (
+        <button
+          key={n}
+          type="button"
+          style={styles.beanBtn}
+          onClick={() => onRate(n)}
+          onMouseEnter={() => setHovered(n)}
+          onMouseLeave={() => setHovered(null)}
+          aria-label={`Rate ${n} out of 5`}
+        >
+          <BeanIcon filled={n <= displayFilled} />
+        </button>
+      ))}
+    </div>
+  )
+}
+
+const styles = {
+  beans: {
+    display: 'flex',
+    gap: '8px',
+    alignItems: 'center',
+  },
+  beanBtn: {
+    background: 'none',
+    border: 'none',
+    padding: '2px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    lineHeight: 0,
+    transform: 'rotate(30deg)',
+  },
+}

@@ -362,7 +362,7 @@ const styles = {
     background: 'rgba(237, 235, 235, 0.95)',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
-    borderRadius: '20px 20px 0 0',
+    borderRadius: '16px 16px 0 0',
     padding: '28px 24px 40px',
     zIndex: 100,
     maxHeight: '90dvh',
@@ -385,9 +385,9 @@ const styles = {
     flexShrink: 0,
   },
   coffeLogLabel: {
-    fontFamily: 'var(--font-body)',
-    fontSize: 'var(--text-small)',
-    color: 'var(--color-taupe)',
+    fontFamily: 'var(--font-display)',
+    fontSize: 'var(--text-label)',
+    color: 'var(--color-mid-roast)',
     marginBottom: '2px',
   },
   beanName: {
@@ -421,7 +421,7 @@ const styles = {
   chipRow: {
     display: 'flex',
     flexWrap: 'wrap',
-    gap: '8px',
+    gap: '12px',
   },
   doseRow: {
     display: 'flex',

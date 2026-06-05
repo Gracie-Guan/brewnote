@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import PillButton from './components/ui/PillButton'
@@ -6,7 +6,9 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import BeansPage from './pages/BeansPage'
 import PastPage from './pages/PastPage'
+import PastBeanPage from './pages/PastBeanPage'
 import SettingsPage from './pages/SettingsPage'
+import InvitePage from './pages/InvitePage'
 import beanIcon from './assets/bean_icon_outline.svg'
 import settingIcon from './assets/setting.svg'
 
@@ -25,38 +27,9 @@ function PublicRoute({ children }) {
   return children
 }
 
-// Top text tabs — Beans / Past
-function TopTabNav() {
-  const location = useLocation()
-  const tabs = [
-    { path: '/beans', label: 'Beans' },
-    { path: '/past',  label: 'Past' },
-  ]
-  return (
-    <div style={styles.topNav}>
-      {tabs.map(tab => {
-        const active = location.pathname === tab.path
-        return (
-          <div key={tab.path} style={styles.topTabWrapper}>
-            <Link
-              to={tab.path}
-              style={{ ...styles.topTab, color: active ? 'var(--color-dark)' : 'var(--color-taupe)', fontWeight: active ? 600 : 400 }}
-            >
-              {tab.label}
-            </Link>
-            {active && <span style={styles.topTabDot} />}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
 // Floating bottom action bar
 function FloatingActionBar() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const onBeans = location.pathname === '/beans'
 
   return (
     <div style={styles.floatingBar}>
@@ -96,15 +69,14 @@ function FloatingActionBar() {
 
 function AppLayout({ children }) {
   const location = useLocation()
-  const showTabs = ['/beans', '/past'].includes(location.pathname)
+  const showFloatingBar = location.pathname !== '/settings'
 
   return (
     <div style={styles.appContainer}>
-      <div style={styles.content}>
-        {showTabs && <TopTabNav />}
+      <div style={{ ...styles.content, paddingBottom: showFloatingBar ? '112px' : 0 }}>
         {children}
       </div>
-      <FloatingActionBar />
+      {showFloatingBar && <FloatingActionBar />}
     </div>
   )
 }
@@ -128,7 +100,9 @@ export default function App() {
           <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
           <Route path="/beans"    element={<ProtectedRoute><AppLayout><BeansPage /></AppLayout></ProtectedRoute>} />
           <Route path="/past"     element={<ProtectedRoute><AppLayout><PastPage /></AppLayout></ProtectedRoute>} />
+          <Route path="/past/:beanId" element={<ProtectedRoute><PastBeanPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><AppLayout><SettingsPage /></AppLayout></ProtectedRoute>} />
+          <Route path="/invite/:token" element={<InvitePage />} />
           <Route path="/"         element={<Navigate to="/beans" replace />} />
         </Routes>
       </AuthProvider>
@@ -138,7 +112,7 @@ export default function App() {
 
 const styles = {
   appContainer: {
-    minHeight: '100dvh',
+    height: '100dvh',
     display: 'flex',
     flexDirection: 'column',
     background: 'linear-gradient(360deg, rgba(74,57,51,0.1) 0%, rgba(100,77,66,0.1) 18.27%, rgba(154,143,134,0.1) 34.13%, rgba(237,235,235,0.1) 100%), var(--color-bg)',
@@ -146,40 +120,12 @@ const styles = {
   content: {
     flex: 1,
     overflowY: 'auto',
-    paddingBottom: '112px',
-  },
-
-  // Top Beans / Past tab strip
-  topNav: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '24px',
-    padding: '16px 20px 0',
-  },
-  topTabWrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '4px',
-  },
-  topTab: {
-    fontFamily: 'var(--font-body)',
-    fontSize: 'var(--text-body)',
-    textDecoration: 'none',
-    lineHeight: 1,
-    transition: 'color 0.15s',
-  },
-  topTabDot: {
-    width: '6px',
-    height: '6px',
-    borderRadius: '99px',
-    background: 'var(--color-accent)',
   },
 
   // Floating action bar
   floatingBar: {
     position: 'fixed',
-    bottom: '32px',
+    bottom: '40px',
     left: '50%',
     transform: 'translateX(-50%)',
     width: '311px',

@@ -3,13 +3,13 @@ import paperBg from '../../assets/paper_bg.svg'
 function SmallBeanIcon({ filled }) {
   return (
     <svg
-      width="12" height="15" viewBox="0 0 19 24" fill="none"
+      width="10" height="12" viewBox="0 0 19 24" fill="none"
       aria-hidden="true"
       style={{ transform: 'rotate(30deg)', display: 'block', flexShrink: 0 }}
     >
       <path
         d="M9.3916 0C14.5781 0.00020547 18.7822 5.37271 18.7822 12C18.7822 18.6273 14.5781 23.9998 9.3916 24C4.20493 24 0 18.6274 0 12C0 5.37258 4.20493 0 9.3916 0ZM9.30957 2.04395C8.86765 1.71308 8.24126 1.80345 7.91016 2.24512C7.57919 2.68719 7.6683 3.31449 8.11035 3.64551C8.44196 3.89384 8.99752 4.407 9.48828 5.08008C9.98182 5.75709 10.356 6.52201 10.4395 7.2832C10.4853 7.70231 10.4001 8.25746 10.1748 8.96094C9.95269 9.65442 9.62349 10.4076 9.25586 11.208C8.89732 11.9886 8.49528 12.8297 8.17285 13.6201C7.85185 14.407 7.57149 15.2331 7.48535 16.0127C7.34101 17.3204 7.78859 18.5819 8.31738 19.5635C8.85222 20.5562 9.5322 21.3788 10.0176 21.8525C10.4128 22.238 11.046 22.2301 11.4316 21.835C11.8173 21.4397 11.8092 20.8066 11.4141 20.4209C11.0599 20.0751 10.5081 19.4124 10.0781 18.6143C9.64223 17.8051 9.39145 16.9687 9.47266 16.2324C9.52763 15.7348 9.72153 15.1152 10.0234 14.375C10.3242 13.6379 10.6952 12.8682 11.0742 12.043C11.444 11.2378 11.8179 10.389 12.0801 9.57031C12.339 8.76166 12.5184 7.89328 12.4277 7.06543C12.2924 5.83149 11.7137 4.73703 11.1045 3.90137C10.4923 3.06178 9.79479 2.40731 9.30957 2.04395Z"
-        fill={filled ? 'var(--color-accent)' : 'rgba(154,143,134,0.3)'}
+        fill={filled ? 'var(--color-light-roast)' : 'rgba(154,143,134,0.3)'}
       />
     </svg>
   )
@@ -28,7 +28,7 @@ function TagChip({ tag, index }) {
       fontSize: 'var(--text-small)',
       fontWeight: 500,
       borderRadius: 'var(--radius-tag)',
-      padding: '3px 8px',
+      padding: '4px 10px',
       ...tagVariants[Math.min(index, 2)],
     }}>
       {tag}
@@ -48,32 +48,33 @@ export default function PastBeanCard({ bean, purchaseCount, onTap }) {
 
   return (
     <button type="button" style={styles.card} onClick={onTap}>
+      {/* Top row: roaster | date */}
       <div style={styles.topRow}>
         <span style={styles.roaster}>{bean.roaster}</span>
         <span style={styles.date}>{archivedDate}</span>
       </div>
 
+      {/* Bean name */}
       <h3 style={styles.name}>{bean.name}</h3>
 
-      {bean.flavor_tags?.length > 0 && (
-        <div style={styles.tagsRow}>
-          {bean.flavor_tags.slice(0, 3).map((tag, i) => (
-            <TagChip key={tag + i} tag={tag} index={i} />
-          ))}
-          {bean.flavor_tags.length > 3 && (
+      {/* Middle: tags (left) + rating (right) */}
+      <div style={styles.middle}>
+        <div style={styles.tagsCol}>
+          {bean.flavor_tags?.length > 0
+            ? bean.flavor_tags.slice(0, 4).map((tag, i) => (
+                <TagChip key={tag + i} tag={tag} index={i} />
+              ))
+            : null}
+          {bean.flavor_tags?.length > 4 && (
             <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-small)', color: 'var(--color-taupe)' }}>
-              +{bean.flavor_tags.length - 3}
+              +{bean.flavor_tags.length - 4}
             </span>
           )}
         </div>
-      )}
 
-      <div style={styles.divider} />
-
-      <div style={styles.statsRow}>
-        <div style={styles.ratingBlock}>
+        <div style={styles.ratingCol}>
           {avgRating !== null && (
-            <span style={styles.ratingNum}>{avgRating.toFixed(1)}</span>
+            <span style={styles.ratingBig}>{avgRating.toFixed(2)}</span>
           )}
           <div style={styles.beanIcons}>
             {[1, 2, 3, 4, 5].map(n => (
@@ -81,13 +82,16 @@ export default function PastBeanCard({ bean, purchaseCount, onTap }) {
             ))}
           </div>
         </div>
+      </div>
 
-        <div style={styles.statsRight}>
-          <span style={styles.statLine}>
-            Purchased {purchaseCount} {purchaseCount === 1 ? 'time' : 'times'}
-          </span>
-          <span style={styles.statLine}>Consumed {bean.total_weight_g}g</span>
-        </div>
+      <div style={styles.divider} />
+
+      {/* Bottom stats */}
+      <div style={styles.statsRow}>
+        <span style={styles.statLine}>
+          Purchased {purchaseCount} {purchaseCount === 1 ? 'time' : 'times'}
+        </span>
+        <span style={styles.statLine}>Consumed {bean.total_weight_g}g</span>
       </div>
     </button>
   )
@@ -99,79 +103,91 @@ const styles = {
     width: '100%',
     textAlign: 'left',
     background: `url(${paperBg}) center / cover, var(--color-silk)`,
-    border: '1px solid rgba(255,255,255,0.6)',
-    borderRadius: '16px',
-    padding: '20px',
-    boxShadow: '2px 5px 6px rgba(62,50,50,0.2)',
+    border: '1px solid var(--color-silk)',
+    borderRadius: '8px',
+    padding: '24px 16px',
+    boxShadow: '6px 18px 16px rgba(154,143,134,0.25)',
     cursor: 'pointer',
   },
   topRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '4px',
+    marginBottom: '8px',
   },
   roaster: {
     fontFamily: 'var(--font-body)',
     fontSize: 'var(--text-small)',
     color: 'var(--color-light-roast)',
-    fontWeight: 500,
+    fontWeight: 300,
   },
   date: {
     fontFamily: 'var(--font-body)',
     fontSize: 'var(--text-small)',
-    color: 'var(--color-taupe)',
+    color: 'var(--color-light-roast)',
+    fontWeight: 300,
   },
   name: {
     fontFamily: 'var(--font-display)',
-    fontSize: 'var(--text-heading-sm)',
+    fontSize: 'var(--text-heading-md)',
     fontWeight: 700,
     color: 'var(--color-dark)',
-    margin: '0 0 12px',
-    lineHeight: 1.2,
+    margin: '0 0 16px',
+    lineHeight: 1.15,
   },
-  tagsRow: {
+  middle: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: '12px',
+    marginBottom: '16px',
+    minHeight: '64px',
+  },
+  tagsCol: {
+    flex: 1,
     display: 'flex',
     flexWrap: 'wrap',
     gap: '6px',
-    marginBottom: '16px',
+    alignContent: 'flex-start',
+    alignItems: 'flex-start',
+  },
+  ratingCol: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: '4px',
+    flexShrink: 0,
+    minWidth: '100px',
+  },
+  ratingBig: {
+    fontFamily: 'var(--font-display)',
+    fontWeight: 600,
+    fontSize: '3rem',
+    lineHeight: 1,
+    letterSpacing: '-0.3rem',
+    color: 'var(--color-accent)',
+    textShadow: '2px 4px 10px rgba(234,104,22,0.3)',
+  },
+  beanIcons: {
+    display: 'flex',
+    color:'var(--color-taupe)',
+    gap: '6px',
     alignItems: 'center',
   },
   divider: {
     height: '1px',
     background: 'rgba(154,143,134,0.25)',
-    margin: '0 0 14px',
+    margin: '0 0 16px',
   },
   statsRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  ratingBlock: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  ratingNum: {
-    fontFamily: 'var(--font-body)',
-    fontSize: 'var(--text-label)',
-    fontWeight: 600,
-    color: 'var(--color-dark)',
-  },
-  beanIcons: {
-    display: 'flex',
-    gap: '4px',
-    alignItems: 'center',
-  },
-  statsRight: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    gap: '2px',
-  },
   statLine: {
     fontFamily: 'var(--font-body)',
     fontSize: 'var(--text-small)',
-    color: 'var(--color-taupe)',
+    fontWeight: 300,
+    color: 'var(--color-light-roast)',
   },
 }

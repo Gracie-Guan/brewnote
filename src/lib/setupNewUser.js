@@ -16,9 +16,12 @@ export async function setupNewUser(user) {
 
   if (existing && existing.length > 0) return
 
+  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'My'
+  const householdName = `${displayName}'s Household`
+
   const { data: household, error: householdError } = await supabase
     .from('households')
-    .insert({ name: 'Our Household', owner_id: user.id })
+    .insert({ name: householdName, owner_id: user.id })
     .select()
     .single()
 

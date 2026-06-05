@@ -3,6 +3,7 @@ import beansLight from '../../assets/beans-light.svg'
 import beansMid from '../../assets/beans-mid.svg'
 import beansDeep from '../../assets/beans-deep.svg'
 import paperBg from '../../assets/paper_bg.svg'
+import beanFillIcon from '../../assets/bean_icon_fill.svg'
 
 function deriveRoastLevel(bean) {
   const text = `${bean.name} ${bean.process ?? ''}`.toLowerCase()
@@ -70,7 +71,7 @@ export default function BeanCard({ bean, onTap }) {
       <svg style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden="true">
         <defs>
           <filter id="paper-edge" x="-8%" y="-8%" width="116%" height="116%">
-            <feTurbulence type="turbulence" baseFrequency="0.03" numOctaves="4" seed="7" result="noise"/>
+            <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="4" seed="7" result="noise"/>
             <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.4" xChannelSelector="R" yChannelSelector="G"/>
           </filter>
         </defs>
@@ -82,10 +83,7 @@ export default function BeanCard({ bean, onTap }) {
           <span style={styles.dateAdded}>{dateAdded}</span>
           {avgRating && (
             <span style={styles.rating}>
-              <svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true" style={{ marginRight: '3px', verticalAlign: '-2px', display: 'inline-block' }}>
-                <ellipse cx="6.5" cy="6.5" rx="6" ry="6" fill="#EA6816"/>
-                <path d="M4 6.5 Q6.5 4 9 6.5" stroke="white" strokeWidth="1.3" fill="none" strokeLinecap="round"/>
-              </svg>
+              <img src={beanFillIcon} alt="" width="11" aria-hidden="true" style={{ transform: 'rotate(30deg)', marginRight: '4px', verticalAlign: '-2px', display: 'inline-block' }} />
               {avgRating}
             </span>
           )}
@@ -100,14 +98,11 @@ export default function BeanCard({ bean, onTap }) {
 
         {bean.flavor_tags && bean.flavor_tags.length > 0 && (
           <div style={styles.tagsRow}>
-            {bean.flavor_tags.slice(0, 3).map((tag, i) => (
+            {bean.flavor_tags.map((tag, i) => (
               <span key={tag} style={i === 0 ? styles.tagPrimary : i === 1 ? styles.tagSecondary : styles.tagTertiary}>
                 {tag}
               </span>
             ))}
-            {bean.flavor_tags.length > 3 && (
-              <span style={styles.tagSecondary}>+{bean.flavor_tags.length - 3}</span>
-            )}
           </div>
         )}
 
@@ -118,7 +113,7 @@ export default function BeanCard({ bean, onTap }) {
             <span style={styles.stockPct}>{percentRemaining}%</span>
           </div>
           <div style={styles.progressTrack}>
-            <div style={{ ...styles.progressFill, width: `${percentRemaining}%` }} />
+            <div style={{ ...styles.progressFill, width: `${percentRemaining}%`, background: fillPercent < 0.2 ? 'var(--color-lychee)' : styles.progressFill.background }} />
           </div>
         </div>
       </div>
