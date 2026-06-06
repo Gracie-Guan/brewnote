@@ -135,7 +135,13 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
   const [selectedMethod, setSelectedMethod] = useState(null)
   const [selectedPortion, setSelectedPortion] = useState(null)
   const [dose, setDose] = useState(15)
+  const [doseInput, setDoseInput] = useState('15')
   const [isCustom, setIsCustom] = useState(false)
+
+  function updateDose(n) {
+    setDose(n)
+    setDoseInput(String(n))
+  }
   const [submitting, setSubmitting] = useState(false)
   const [closing, setClosing] = useState(false)
 
@@ -159,7 +165,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
       ?? profiles.find(p => p.method_name === method)
     if (defaultProfile) {
       setSelectedPortion(defaultProfile.portion)
-      setDose(defaultProfile.grams)
+      updateDose(defaultProfile.grams)
     }
   }
 
@@ -172,7 +178,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
     setIsCustom(false)
     setSelectedPortion(portion)
     const profile = profiles.find(p => p.method_name === selectedMethod && p.portion === portion)
-    if (profile) setDose(profile.grams)
+    if (profile) updateDose(profile.grams)
   }
 
   async function handleConfirm() {
@@ -279,13 +285,19 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
                 type="number"
                 min="1"
                 max={sliderMax}
-                value={isCustom ? dose : ''}
+                value={isCustom ? doseInput : ''}
                 placeholder="—"
                 className="dose-input"
-                onFocus={() => { setIsCustom(true); setSelectedPortion('custom') }}
+                onFocus={() => { setIsCustom(true); setSelectedPortion('custom'); setDoseInput(String(dose)) }}
                 onChange={e => {
+                  const raw = e.target.value
+                  setDoseInput(raw)
+                  const v = parseInt(raw, 10)
+                  if (!isNaN(v) && v >= 1) setDose(Math.min(sliderMax, v))
+                }}
+                onBlur={e => {
                   const v = parseInt(e.target.value, 10)
-                  if (!isNaN(v)) setDose(Math.max(1, Math.min(sliderMax, v)))
+                  if (isNaN(v) || v < 1) setDoseInput(String(dose))
                 }}
                 style={{
                   background: 'none', border: 'none', outline: 'none',
@@ -308,7 +320,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
           <div style={styles.doseRow}>
             <span style={styles.doseValue}>{dose}</span>
           </div>
-          <TickRuler dose={dose} sliderMax={sliderMax} onChange={setDose} />
+          <TickRuler dose={dose} sliderMax={sliderMax} onChange={updateDose} />
         </div>
 
         {/* Bottom */}
