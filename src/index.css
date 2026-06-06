@@ -73,6 +73,15 @@ body {
   border-color: var(--color-porcelain);
 }
 
+/* Override browser autofill yellow background on inputs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px rgba(154,143,134,0.3) inset !important;
+  -webkit-text-fill-color: var(--color-dark) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 /* Hide scrollbar on carousel while keeping scroll behavior */
 .carousel-scroll::-webkit-scrollbar {
   display: none;

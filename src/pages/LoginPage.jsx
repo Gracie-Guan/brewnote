@@ -134,7 +134,7 @@ const styles = {
     fontSize: 'var(--text-body)',
     padding: '12px 16px',
     borderRadius: '99px',
-    border: '2px solid #F5F4ED',
+    border: '1px solid rgba(154,143,134,0.2)',
     background: 'rgba(154,143,134,0.3)',
     color: 'var(--color-dark)',
     outline: 'none',
