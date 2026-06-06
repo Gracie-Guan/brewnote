@@ -2,6 +2,7 @@ const VISION_URL = 'https://vision.googleapis.com/v1/images:annotate'
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
