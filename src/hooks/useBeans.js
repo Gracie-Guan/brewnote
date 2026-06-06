@@ -15,11 +15,11 @@ export function useBeans(status = 'active') {
     if (isFirstFetch.current) setLoading(true)
     setError(null)
 
-    const { data: membership, error: memberErr } = await supabase
+    const { data: rows, error: memberErr } = await supabase
       .from('household_members')
       .select('household_id')
       .eq('user_id', user.id)
-      .maybeSingle()
+      .limit(1)
 
     if (memberErr) {
       setError(memberErr.message)
@@ -27,6 +27,7 @@ export function useBeans(status = 'active') {
       return
     }
 
+    const membership = rows?.[0] ?? null
     if (!membership) {
       setBeans([])
       setLoading(false)

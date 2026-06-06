@@ -12,12 +12,13 @@ export function useHousehold() {
     if (!user) return
     setLoading(true)
 
-    const { data: membership } = await supabase
+    const { data: rows } = await supabase
       .from('household_members')
       .select('household_id')
       .eq('user_id', user.id)
-      .maybeSingle()
+      .limit(1)
 
+    const membership = rows?.[0] ?? null
     if (!membership) { setLoading(false); return }
 
     const [{ data: hh }, { data: mems }] = await Promise.all([
