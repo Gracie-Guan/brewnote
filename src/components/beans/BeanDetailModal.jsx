@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import PillButton from '../ui/PillButton'
 import BeanRating from './BeanRating'
@@ -15,6 +16,7 @@ function TagChip({ tag, index }) {
 }
 
 export default function BeanDetailModal({ bean, householdId, onClose, onBeanUpdated }) {
+  const navigate = useNavigate()
   const [flavorTags, setFlavorTags]       = useState(bean.flavor_tags ?? [])
   const [tagInput, setTagInput]           = useState('')
   const [showTagInput, setShowTagInput]   = useState(false)
@@ -192,7 +194,12 @@ export default function BeanDetailModal({ bean, householdId, onClose, onBeanUpda
 
         {/* Brew Note */}
         <div style={styles.section}>
-          <span style={styles.sectionLabel}>Brew Note</span>
+          <div style={styles.sectionRow}>
+            <span style={styles.sectionLabel}>Brew Note</span>
+            <button type="button" style={styles.allLink} onClick={() => { onClose(); navigate(`/past/${bean.id}`) }}>
+              All &gt;
+            </button>
+          </div>
           <textarea
             className="field-input"
             style={styles.textarea}
@@ -321,11 +328,26 @@ const styles = {
     gap: '10px',
     marginBottom: '16px',
   },
+  sectionRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   sectionLabel: {
     fontFamily: 'var(--font-body)',
     fontSize: 'var(--text-small)',
     color: 'var(--color-light-roast)',
     fontWeight: 400,
+  },
+  allLink: {
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-small)',
+    color: 'var(--color-accent)',
+    fontWeight: 500,
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    cursor: 'pointer',
   },
   tagsWrap: {
     display: 'flex',
