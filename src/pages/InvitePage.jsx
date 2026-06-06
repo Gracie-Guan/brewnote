@@ -45,15 +45,21 @@ export default function InvitePage() {
   async function handleJoin() {
     setStatus('joining')
 
-    // Check if already a member
-    const { data: existing } = await supabase
+    // Check if already in the target household
+    const { data: alreadyMember } = await supabase
       .from('household_members')
       .select('id')
       .eq('household_id', invite.household_id)
       .eq('user_id', user.id)
       .maybeSingle()
 
-    if (!existing) {
+    if (!alreadyMember) {
+      // Remove any existing household memberships so the user ends up in exactly one household
+      await supabase
+        .from('household_members')
+        .delete()
+        .eq('user_id', user.id)
+
       const { error } = await supabase
         .from('household_members')
         .insert({ household_id: invite.household_id, user_id: user.id })
