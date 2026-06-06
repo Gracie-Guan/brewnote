@@ -179,7 +179,7 @@ const styles = {
     fontWeight: 500,
     padding: '13px 24px',
     borderRadius: '99px',
-    border: '1.5px solid var(--color-accent)',
+    border: '1.5px solid rgba(154,143,134,0.3)',
     background: 'rgba(245,244,237,0.6)',
     color: 'var(--color-accent)',
     boxShadow: '4px 6px 8px rgba(154,143,134,0.2), inset -2px -2px 2px rgba(255,255,255,0.8)',
