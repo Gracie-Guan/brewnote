@@ -451,7 +451,7 @@ const styles = {
   },
   customInput: {
     fontFamily: 'var(--font-body)',
-    fontSize: 'var(--text-small)',
+    fontSize: '16px',
     color: 'var(--color-dark)',
     background: 'transparent',
     border: 'none',

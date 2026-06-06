@@ -282,9 +282,9 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
             })}
             <label style={{ ...(isCustom ? chip.selected : chip.muted), display: 'inline-flex', alignItems: 'center', gap: '2px', cursor: 'text' }}>
               <input
-                type="number"
-                min="1"
-                max={sliderMax}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={isCustom ? doseInput : ''}
                 placeholder="—"
                 className="dose-input"
