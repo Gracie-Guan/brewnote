@@ -345,7 +345,7 @@ const styles = {
   },
   tagInput: {
     fontFamily: 'var(--font-body)',
-    fontSize: 'var(--text-small)',
+    fontSize: '16px',
     color: 'var(--color-dark)',
     background: 'rgba(154,143,134,0.15)',
     borderRadius: '4px',

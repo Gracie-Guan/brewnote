@@ -302,7 +302,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
                 style={{
                   background: 'none', border: 'none', outline: 'none',
                   width: '28px', fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-label)', fontWeight: 400,
+                  fontSize: '16px', fontWeight: 400,
                   color: 'inherit', textAlign: 'center', padding: 0,
                 }}
               />

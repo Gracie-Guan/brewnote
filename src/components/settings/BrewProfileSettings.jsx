@@ -241,8 +241,9 @@ export default function BrewProfileSettings({ profiles, householdId, refetch }) 
                     value={customPortion}
                     onChange={e => setCustomPortion(e.target.value)}
                     style={styles.portionCustomInput}
-                    type="number"
-                    min="1"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="×?"
                     autoFocus
                   />
@@ -459,7 +460,7 @@ const styles = {
   },
   portionCustomInput: {
     fontFamily: 'var(--font-body)',
-    fontSize: 'var(--text-label)',
+    fontSize: '16px',
     color: 'var(--color-dark)',
     background: 'var(--color-porcelain)',
     border: '1px solid rgba(255, 255, 255, 0.8)',
