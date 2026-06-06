@@ -258,8 +258,9 @@ export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
               <label style={styles.label}>Roast Date</label>
               <input
                 className="field-input"
-                style={{ ...styles.input, ...styles.inputFixed, color: roastDate ? 'var(--color-dark)' : 'var(--color-taupe)' }}
-                type="date"
+                style={styles.input}
+                type="text"
+                placeholder="e.g. 2024-06-15"
                 value={roastDate}
                 onChange={e => setRoastDate(e.target.value)}
               />
@@ -268,7 +269,7 @@ export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
               <label style={styles.label}>Process</label>
               <input
                 className="field-input"
-                style={{ ...styles.input, ...styles.inputFixed }}
+                style={styles.input}
                 placeholder="e.g. Washed"
                 value={process}
                 onChange={e => setProcess(e.target.value)}
@@ -408,10 +409,6 @@ const styles = {
     padding: '12px 18px',
     width: '100%',
     boxSizing: 'border-box',
-  },
-  inputFixed: {
-    height: '46px',
-    padding: '0 18px',
   },
   chipRow: {
     display: 'flex',
