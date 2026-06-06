@@ -145,6 +145,7 @@ const styles = {
     bottom: '40px',
     left: '50%',
     transform: 'translateX(-50%)',
+    width: 'max-content',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',

@@ -200,6 +200,8 @@ const styles = {
     top: '40px',
     width: '320px',
     height: '490px',
+    borderRadius: '32px',
+    overflow: 'hidden',
     opacity: 0.5,
     mixBlendMode: 'soft-light',
     pointerEvents: 'none',
