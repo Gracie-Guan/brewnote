@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Plus } from 'lucide-react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { AppUIProvider, useAppUI } from './contexts/AppUIContext'
 import PillButton from './components/ui/PillButton'
@@ -34,15 +35,26 @@ function FloatingActionBar() {
 
   return (
     <div style={styles.floatingBar}>
-      {/* ADD BEANS dark pill */}
-      <PillButton
-        variant="dark"
-        onClick={() => navigate('/beans', { state: { openAdd: true } })}
-        aria-label="Add beans"
-        style={styles.addBeansPill}
-      >
-        <span style={styles.addBeansText}>ADD BEANS</span>
-      </PillButton>
+      {/* ADD BEANS (empty) or + (has beans) */}
+      {hideLogBrew ? (
+        <PillButton
+          variant="dark"
+          onClick={() => navigate('/beans', { state: { openAdd: true } })}
+          aria-label="Add beans"
+          style={styles.addBeansPill}
+        >
+          <span style={styles.addBeansText}>ADD BEANS</span>
+        </PillButton>
+      ) : (
+        <PillButton
+          variant="glass"
+          onClick={() => navigate('/beans', { state: { openAdd: true } })}
+          aria-label="Add beans"
+          style={styles.iconPill}
+        >
+          <Plus size={24} color="var(--color-taupe)" strokeWidth={1.5} />
+        </PillButton>
+      )}
 
       {/* LOG BREW pill — hidden when jar is empty */}
       {!hideLogBrew && (
