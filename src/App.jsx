@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { Plus } from 'lucide-react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { AppUIProvider, useAppUI } from './contexts/AppUIContext'
 import PillButton from './components/ui/PillButton'
@@ -35,22 +34,22 @@ function FloatingActionBar() {
 
   return (
     <div style={styles.floatingBar}>
-      {/* + pill */}
+      {/* ADD BEANS dark pill */}
       <PillButton
-        variant="glass"
+        variant="dark"
         onClick={() => navigate('/beans', { state: { openAdd: true } })}
         aria-label="Add beans"
-        style={styles.iconPill}
+        style={styles.addBeansPill}
       >
-        <Plus size={24} color="var(--color-taupe)" strokeWidth={1.5} />
+        <span style={styles.addBeansText}>ADD BEANS</span>
       </PillButton>
 
-      {/* LOG BREW center pill — hidden when jar is empty */}
+      {/* LOG BREW pill — hidden when jar is empty */}
       {!hideLogBrew && (
         <PillButton
           variant="glass"
           onClick={() => navigate('/beans', { state: { openLogBrew: true } })}
-          style={styles.centerPill}
+          style={styles.logBrewPill}
           aria-label="Log brew"
         >
           <img src={beanIcon} alt="" aria-hidden="true" width={19} height={24} style={{ flexShrink: 0 }} />
@@ -131,26 +130,36 @@ const styles = {
   // Floating action bar
   floatingBar: {
     position: 'fixed',
-    bottom: '20px',
+    bottom: '40px',
     left: '50%',
     transform: 'translateX(-50%)',
-    width: '311px',
-    height: '48px',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: '24px',
+    gap: '12px',
     zIndex: 50,
+  },
+  addBeansPill: {
+    height: '48px',
+    padding: '0 24px',
+    flexShrink: 0,
+  },
+  addBeansText: {
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-label)',
+    fontWeight: 600,
+    letterSpacing: '0.08em',
+  },
+  logBrewPill: {
+    height: '48px',
+    padding: '0 20px',
+    gap: '8px',
+    flexShrink: 0,
   },
   iconPill: {
     width: '48px',
     height: '48px',
     flexShrink: 0,
-  },
-  centerPill: {
-    flex: 1,
-    height: '48px',
-    gap: '8px',
   },
   centerPillText: {
     fontFamily: 'var(--font-body)',
