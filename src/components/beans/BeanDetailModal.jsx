@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
 import PillButton from '../ui/PillButton'
 import BeanRating from './BeanRating'
-import paperBg from '../../assets/paper_bg.svg'
+import paperBg from '../../assets/paper_bg.webp'
 
 // Mirrors BeanCard tag style: first=lychee red, second=outlined light, third=orange text
 function TagChip({ tag, index }) {

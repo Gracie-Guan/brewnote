@@ -34,8 +34,10 @@ export default function LoginPage() {
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        <h1 style={styles.title}>BrewNote</h1>
-        <p style={styles.subtitle}>Coffee yet?</p>
+        <div style={styles.brandRow}>
+          <img src="/icons/icon-512.png" alt="BrewNote" width={72} height={72} style={styles.logo} />
+          <h1 style={styles.title}>BrewNote</h1>
+        </div>
 
         <form onSubmit={handleLogin} style={styles.form}>
           <input
@@ -61,10 +63,12 @@ export default function LoginPage() {
         </form>
 
         <div style={styles.divider}>
+          <div style={styles.dividerLine} />
           <span style={styles.dividerText}>or</span>
+          <div style={styles.dividerLine} />
         </div>
 
-        <button onClick={handleGoogleLogin} style={styles.ghostBtn}>
+        <button onClick={handleGoogleLogin} style={styles.googleBtn}>
           Continue with Google
         </button>
 
@@ -101,18 +105,22 @@ const styles = {
     flexDirection: 'column',
     gap: '16px',
   },
+  brandRow: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
+    marginBottom: '4px',
+  },
+  logo: {
+    display: 'block',
+    borderRadius: '16px',
+  },
   title: {
-    fontFamily: '"Courier Prime", monospace',
+    fontFamily: 'var(--font-display)',
     fontSize: '32px',
     fontWeight: 700,
-    color: '#130801',
-    margin: 0,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontFamily: '"DM Sans", sans-serif',
-    fontSize: '16px',
-    color: '#9A8F86',
+    color: 'var(--color-mid-roast)',
     margin: 0,
     textAlign: 'center',
   },
@@ -122,31 +130,31 @@ const styles = {
     gap: '12px',
   },
   input: {
-    fontFamily: '"DM Sans", sans-serif',
-    fontSize: '16px',
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-body)',
     padding: '12px 16px',
     borderRadius: '99px',
     border: '2px solid #F5F4ED',
     background: 'rgba(154,143,134,0.3)',
-    color: '#130801',
+    color: 'var(--color-dark)',
     outline: 'none',
     transition: 'background 0.15s',
   },
   error: {
-    fontFamily: '"DM Sans", sans-serif',
-    fontSize: '14px',
-    color: '#B93006',
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-label)',
+    color: 'var(--color-lychee)',
     margin: 0,
   },
   primaryBtn: {
-    fontFamily: '"DM Sans", sans-serif',
-    fontSize: '16px',
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-body)',
     fontWeight: 500,
     padding: '13px 24px',
     borderRadius: '99px',
     border: 'none',
     background: 'rgba(74,57,51,0.8)',
-    color: '#F5F4ED',
+    color: 'var(--color-porcelain)',
     boxShadow: '2px 2px 4px rgba(154,143,134,0.2), inset -2px -2px 2px rgba(255,255,255,0.3)',
     cursor: 'pointer',
   },
@@ -155,33 +163,37 @@ const styles = {
     alignItems: 'center',
     gap: '12px',
   },
-  dividerText: {
-    fontFamily: '"DM Sans", sans-serif',
-    fontSize: '14px',
-    color: '#9A8F86',
-    margin: '0 auto',
+  dividerLine: {
+    flex: 1,
+    height: '1px',
+    background: 'rgba(154,143,134,0.3)',
   },
-  ghostBtn: {
-    fontFamily: '"DM Sans", sans-serif',
-    fontSize: '16px',
+  dividerText: {
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-label)',
+    color: 'var(--color-taupe)',
+  },
+  googleBtn: {
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-body)',
     fontWeight: 500,
     padding: '13px 24px',
     borderRadius: '99px',
-    border: '1.5px solid rgba(154,143,134,0.5)',
+    border: '1.5px solid var(--color-accent)',
     background: 'rgba(245,244,237,0.6)',
-    color: '#130801',
+    color: 'var(--color-accent)',
     boxShadow: '4px 6px 8px rgba(154,143,134,0.2), inset -2px -2px 2px rgba(255,255,255,0.8)',
     cursor: 'pointer',
   },
   switchText: {
-    fontFamily: '"DM Sans", sans-serif',
-    fontSize: '14px',
-    color: '#9A8F86',
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-label)',
+    color: 'var(--color-taupe)',
     textAlign: 'center',
     margin: 0,
   },
   link: {
-    color: '#EA6816',
+    color: 'var(--color-accent)',
     textDecoration: 'none',
     fontWeight: 500,
   },

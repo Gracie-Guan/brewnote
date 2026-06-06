@@ -1,4 +1,4 @@
-import paperBg from '../../assets/paper_bg.svg'
+import paperBg from '../../assets/paper_bg.webp'
 
 function SmallBeanIcon({ filled }) {
   return (

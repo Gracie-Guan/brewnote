@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import beansLight from '../../assets/beans-light.svg'
 import beansMid from '../../assets/beans-mid.svg'
 import beansDeep from '../../assets/beans-deep.svg'
-import paperBg from '../../assets/paper_bg.svg'
+import paperBg from '../../assets/paper_bg.webp'
 import beanFillIcon from '../../assets/bean_icon_fill.svg'
 
 function deriveRoastLevel(bean) {
