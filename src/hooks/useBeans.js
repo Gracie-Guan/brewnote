@@ -19,10 +19,16 @@ export function useBeans(status = 'active') {
       .from('household_members')
       .select('household_id')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (memberErr || !membership) {
-      setError(memberErr?.message ?? 'No household found')
+    if (memberErr) {
+      setError(memberErr.message)
+      setLoading(false)
+      return
+    }
+
+    if (!membership) {
+      setBeans([])
       setLoading(false)
       return
     }

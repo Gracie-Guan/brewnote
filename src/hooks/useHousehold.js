@@ -16,7 +16,7 @@ export function useHousehold() {
       .from('household_members')
       .select('household_id')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
     if (!membership) { setLoading(false); return }
 
