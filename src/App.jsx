@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { AppUIProvider, useAppUI } from './contexts/AppUIContext'
 import PillButton from './components/ui/PillButton'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -30,6 +31,7 @@ function PublicRoute({ children }) {
 // Floating bottom action bar
 function FloatingActionBar() {
   const navigate = useNavigate()
+  const { hideLogBrew } = useAppUI()
 
   return (
     <div style={styles.floatingBar}>
@@ -43,16 +45,18 @@ function FloatingActionBar() {
         <Plus size={24} color="var(--color-taupe)" strokeWidth={1.5} />
       </PillButton>
 
-      {/* LOG BREW center pill */}
-      <PillButton
-        variant="glass"
-        onClick={() => navigate('/beans', { state: { openLogBrew: true } })}
-        style={styles.centerPill}
-        aria-label="Log brew"
-      >
-        <img src={beanIcon} alt="" aria-hidden="true" width={19} height={24} style={{ flexShrink: 0 }} />
-        <span style={styles.centerPillText}>LOG BREW</span>
-      </PillButton>
+      {/* LOG BREW center pill — hidden when jar is empty */}
+      {!hideLogBrew && (
+        <PillButton
+          variant="glass"
+          onClick={() => navigate('/beans', { state: { openLogBrew: true } })}
+          style={styles.centerPill}
+          aria-label="Log brew"
+        >
+          <img src={beanIcon} alt="" aria-hidden="true" width={19} height={24} style={{ flexShrink: 0 }} />
+          <span style={styles.centerPillText}>LOG BREW</span>
+        </PillButton>
+      )}
 
       {/* Settings pill */}
       <PillButton
@@ -72,12 +76,14 @@ function AppLayout({ children }) {
   const showFloatingBar = location.pathname !== '/settings'
 
   return (
-    <div style={styles.appContainer}>
-      <div style={{ ...styles.content, paddingBottom: showFloatingBar ? '112px' : 0 }}>
-        {children}
+    <AppUIProvider>
+      <div style={styles.appContainer}>
+        <div style={{ ...styles.content, paddingBottom: showFloatingBar ? '112px' : 0 }}>
+          {children}
+        </div>
+        {showFloatingBar && <FloatingActionBar />}
       </div>
-      {showFloatingBar && <FloatingActionBar />}
-    </div>
+    </AppUIProvider>
   )
 }
 
@@ -125,7 +131,7 @@ const styles = {
   // Floating action bar
   floatingBar: {
     position: 'fixed',
-    bottom: '40px',
+    bottom: '20px',
     left: '50%',
     transform: 'translateX(-50%)',
     width: '311px',

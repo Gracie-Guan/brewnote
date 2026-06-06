@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useBeans } from '../hooks/useBeans'
+import { useAppUI } from '../contexts/AppUIContext'
 import EmptyState from '../components/beans/EmptyState'
 import BeanCarousel from '../components/beans/BeanCarousel'
 import AddCoffeeModal from '../components/beans/AddCoffeeModal'
@@ -11,6 +12,7 @@ import Toast from '../components/ui/Toast'
 
 export default function BeansPage() {
   const { beans, householdId, loading, error, refetch } = useBeans('active')
+  const { setHideLogBrew } = useAppUI()
   const [focusedBean, setFocusedBean] = useState(null)
   const [selectedBean, setSelectedBean] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -35,6 +37,10 @@ export default function BeansPage() {
       if (beans.length > 0) setShowLogBrew(true)
     }
   }, [location.state?.openLogBrew, beans.length])
+
+  useEffect(() => {
+    if (!loading) setHideLogBrew(beans.length === 0)
+  }, [beans.length, loading, setHideLogBrew])
 
   function handleBeanArchived(beanName) {
     setToast(`☕ ${beanName} finished — moved to Past`)
@@ -69,7 +75,7 @@ export default function BeansPage() {
       <TopTabNav />
 
       {beans.length === 0 ? (
-        <EmptyState onAddBeans={() => setShowAddModal(true)} />
+        <EmptyState />
       ) : (
         <BeanCarousel
           beans={beans}
@@ -118,7 +124,7 @@ const styles = {
     paddingBottom: '24px',
   },
   header: {
-    padding: '48px 20px 4px',
+    padding: '24px 20px 4px',
   },
   greeting: {
     fontFamily: 'var(--font-display)',

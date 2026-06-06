@@ -60,7 +60,7 @@ export default function PastPage() {
 
 const styles = {
   header: {
-    padding: '48px 20px 4px',
+    padding: '24px 20px 4px',
   },
   greeting: {
     fontFamily: 'var(--font-display)',

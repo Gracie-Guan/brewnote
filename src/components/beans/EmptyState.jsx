@@ -1,4 +1,4 @@
-export default function EmptyState({ onAddBeans }) {
+export default function EmptyState() {
   return (
     <div style={styles.container}>
       <div style={styles.jarWrapper}>
@@ -16,9 +16,6 @@ export default function EmptyState({ onAddBeans }) {
           </div>
         </div>
       </div>
-      <button style={styles.addButton} onClick={onAddBeans}>
-        ADD BEANS
-      </button>
     </div>
   )
 }
@@ -28,8 +25,8 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    paddingTop: '40px',
-    paddingBottom: '32px',
+    paddingTop: '20px',
+    paddingBottom: '16px',
     gap: '32px',
   },
   jarWrapper: {
@@ -87,18 +84,5 @@ const styles = {
     color: '#4A3933',
     lineHeight: 1.5,
     margin: 0,
-  },
-  addButton: {
-    fontFamily: '"DM Sans", sans-serif',
-    fontSize: '14px',
-    fontWeight: 500,
-    letterSpacing: '0.08em',
-    color: '#F5F4ED',
-    background: 'rgba(74, 57, 51, 0.8)',
-    boxShadow: '2px 2px 4px rgba(154,143,134,0.2), inset -2px -2px 2px rgba(255,255,255,0.3)',
-    border: 'none',
-    borderRadius: '99px',
-    padding: '14px 32px',
-    cursor: 'pointer',
   },
 }
