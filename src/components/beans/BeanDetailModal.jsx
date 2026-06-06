@@ -362,7 +362,7 @@ const styles = {
 
   textarea: {
     fontFamily: 'var(--font-body)',
-    fontSize: 'var(--text-label)',
+    fontSize: '16px',
     color: 'var(--color-dark)',
     background: 'rgba(154,143,134,0.12)',
     borderRadius: '8px',

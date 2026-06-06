@@ -26,6 +26,8 @@ export default function BeanCard({ bean, onTap }) {
   const roastLevel = deriveRoastLevel(bean)
   const beanSvg = roastLevel === 'light' ? beansLight : roastLevel === 'deep' ? beansDeep : beansMid
   const rotation = useMemo(() => beanRotation(bean.id), [bean.id])
+  const noiseId = `jar-noise-${bean.id}`
+  const paperEdgeId = `paper-edge-${bean.id}`
 
   const avgRating = useMemo(() => {
     if (!bean.ratings || bean.ratings.length === 0) return null
@@ -60,17 +62,17 @@ export default function BeanCard({ bean, onTap }) {
 
       {/* Layer 3 — glass noise grain */}
       <svg style={styles.jarNoise} aria-hidden="true">
-        <filter id="jar-noise">
+        <filter id={noiseId}>
           <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3" stitchTiles="stitch"/>
           <feColorMatrix type="saturate" values="0"/>
         </filter>
-        <rect width="100%" height="100%" rx="32" filter="url(#jar-noise)"/>
+        <rect width="100%" height="100%" rx="32" filter={`url(#${noiseId})`}/>
       </svg>
 
       {/* Paper edge filter — displaces label border pixels for deckled paper feel */}
       <svg style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden="true">
         <defs>
-          <filter id="paper-edge" x="-8%" y="-8%" width="116%" height="116%">
+          <filter id={paperEdgeId} x="-8%" y="-8%" width="116%" height="116%">
             <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="4" seed="7" result="noise"/>
             <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.4" xChannelSelector="R" yChannelSelector="G"/>
           </filter>
@@ -78,7 +80,7 @@ export default function BeanCard({ bean, onTap }) {
       </svg>
 
       {/* Layer 4 — paper label */}
-      <div style={{ ...styles.label, transform: `rotate(${rotation}deg)` }}>
+      <div style={{ ...styles.label, transform: `rotate(${rotation}deg)`, filter: `url(#${paperEdgeId})` }}>
         <div style={styles.labelTop}>
           <span style={styles.dateAdded}>{dateAdded}</span>
           {avgRating && (
@@ -215,12 +217,14 @@ const styles = {
     top: '100px',
     width: '272px',
     padding: '24px',
-    background: `url(${paperBg}) center / cover, #E9E4D8`,
+    backgroundImage: `url(${paperBg})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundColor: '#E9E4D8',
     opacity: 0.95,
     border: '1px solid #E9E4D8',
     boxShadow: '2px 5px 6px rgba(62, 50, 50, 0.2)',
     borderRadius: '8px',
-    filter: 'url(#paper-edge)',
     zIndex: 4,
     transformOrigin: 'center center',
   },
