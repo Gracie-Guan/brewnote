@@ -99,7 +99,9 @@ export default function HouseholdSettings({ household, members, refetch }) {
             return (
               <div key={m.user_id} style={styles.memberRow}>
                 <div>
-                  <span style={styles.memberName}>{isMe ? 'You' : 'Member'}</span>
+                  <span style={styles.memberName}>
+                    {isMe ? 'You' : (m.profiles?.display_name || m.profiles?.email || 'Member')}
+                  </span>
                   <span style={styles.memberSub}>Joined {joinedDate}</span>
                 </div>
                 {!isMe && isOwner && (

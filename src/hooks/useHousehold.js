@@ -23,7 +23,7 @@ export function useHousehold() {
 
     const [{ data: hh }, { data: mems }] = await Promise.all([
       supabase.from('households').select('*').eq('id', membership.household_id).single(),
-      supabase.from('household_members').select('user_id, joined_at').eq('household_id', membership.household_id),
+      supabase.from('household_members').select('user_id, joined_at, profiles(display_name, email)').eq('household_id', membership.household_id),
     ])
 
     setHousehold(hh)
