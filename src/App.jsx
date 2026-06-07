@@ -82,19 +82,34 @@ function FloatingActionBar() {
   )
 }
 
-function AppLayout({ children }) {
-  const location = useLocation()
-  const showFloatingBar = location.pathname !== '/settings'
-
+// Persistent tab layout — both BeansPage and PastPage stay mounted so data
+// survives tab switches. CSS visibility controls which one is visible.
+function TabsLayout() {
+  const { pathname } = useLocation()
   return (
     <AppUIProvider>
       <div style={styles.appContainer}>
-        <div style={{ ...styles.content, paddingBottom: showFloatingBar ? '112px' : 0 }}>
-          {children}
+        <div style={styles.tabsContainer}>
+          <div style={{ ...styles.tabPanel, display: pathname === '/beans' ? 'flex' : 'none' }}>
+            <BeansPage />
+          </div>
+          <div style={{ ...styles.tabPanel, display: pathname === '/past' ? 'flex' : 'none' }}>
+            <PastPage />
+          </div>
         </div>
-        {showFloatingBar && <FloatingActionBar />}
+        <FloatingActionBar />
       </div>
     </AppUIProvider>
+  )
+}
+
+function AppLayout({ children }) {
+  return (
+    <div style={styles.appContainer}>
+      <div style={styles.content}>
+        {children}
+      </div>
+    </div>
   )
 }
 
@@ -115,8 +130,13 @@ export default function App() {
         <Routes>
           <Route path="/login"    element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
-          <Route path="/beans"    element={<ProtectedRoute><AppLayout><BeansPage /></AppLayout></ProtectedRoute>} />
-          <Route path="/past"     element={<ProtectedRoute><AppLayout><PastPage /></AppLayout></ProtectedRoute>} />
+
+          {/* Tab routes share a single persistent layout so data survives switching */}
+          <Route element={<ProtectedRoute><TabsLayout /></ProtectedRoute>}>
+            <Route path="/beans" element={null} />
+            <Route path="/past"  element={null} />
+          </Route>
+
           <Route path="/past/:beanId" element={<ProtectedRoute><PastBeanPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><AppLayout><SettingsPage /></AppLayout></ProtectedRoute>} />
           <Route path="/invite/:token" element={<InvitePage />} />
@@ -137,6 +157,18 @@ const styles = {
   content: {
     flex: 1,
     overflowY: 'auto',
+  },
+  tabsContainer: {
+    flex: 1,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  tabPanel: {
+    position: 'absolute',
+    inset: 0,
+    overflowY: 'auto',
+    flexDirection: 'column',
+    paddingBottom: '112px',
   },
 
   // Floating action bar
