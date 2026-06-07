@@ -50,32 +50,16 @@ export default function BeanCarousel({ beans, onCardTap, onFocusChange }) {
           </div>
         ))}
       </div>
-
-      {/* Dot indicators */}
-      {beans.length > 1 && (
-        <div style={styles.dots}>
-          {beans.map((_, i) => (
-            <span
-              key={i}
-              style={{
-                ...styles.dot,
-                background: i === focusedIndex ? '#EA6816' : 'rgba(154,143,134,0.4)',
-                width: i === focusedIndex ? '16px' : '6px',
-              }}
-            />
-          ))}
-        </div>
-      )}
     </div>
   )
 }
 
 const styles = {
   outer: {
+    position: 'relative',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '16px',
   },
   container: {
     display: 'flex',
@@ -86,7 +70,7 @@ const styles = {
     msOverflowStyle: 'none',
     touchAction: 'pan-x',
     gap: '24px',
-    padding: '24px 28px 48px',
+    padding: '24px 28px 32px',
     alignItems: 'flex-start',
     width: '100%',
     boxSizing: 'border-box',
@@ -94,15 +78,7 @@ const styles = {
   cardWrapper: {
     flexShrink: 0,
     scrollSnapAlign: 'center',
-  },
-  dots: {
-    display: 'flex',
-    gap: '6px',
-    alignItems: 'center',
-  },
-  dot: {
-    height: '6px',
-    borderRadius: '99px',
-    transition: 'width 0.25s ease, background 0.25s ease',
+    transform: 'translateZ(0)',
+    willChange: 'transform',
   },
 }
