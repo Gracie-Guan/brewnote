@@ -135,7 +135,9 @@ export default function BeanDetailModal({ bean, householdId, onClose, onBeanUpda
         </svg>
 
         {/* Bean name */}
-        <h2 style={styles.beanName}>{bean.name}</h2>
+        <h2 style={styles.beanName}>
+          {bean.name || `${bean.origin ?? ''}${bean.farm ? ` · ${bean.farm}` : ''}`}
+        </h2>
 
         {/* 2-col metadata grid */}
         <div style={styles.metaGrid}>
@@ -143,6 +145,25 @@ export default function BeanDetailModal({ bean, householdId, onClose, onBeanUpda
             <span style={styles.metaLabel}>Roaster</span>
             <span style={styles.metaValue}>{bean.roaster}</span>
           </div>
+          {bean.origin ? (
+            <>
+              <div style={styles.metaCell}>
+                <span style={styles.metaLabel}>Origin</span>
+                <span style={styles.metaValue}>{bean.origin}</span>
+              </div>
+              {bean.farm && (
+                <div style={styles.metaCell}>
+                  <span style={styles.metaLabel}>Farm</span>
+                  <span style={styles.metaValue}>{bean.farm}</span>
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={styles.metaCell}>
+              <span style={styles.metaLabel}>Name</span>
+              <span style={styles.metaValue}>{bean.name || '—'}</span>
+            </div>
+          )}
           <div style={styles.metaCell}>
             <span style={styles.metaLabel}>Process</span>
             <span style={styles.metaValue}>{bean.process || '—'}</span>

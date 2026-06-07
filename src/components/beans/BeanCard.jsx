@@ -5,8 +5,13 @@ import beansDeep from '../../assets/beans-deep.svg'
 import paperBg from '../../assets/paper_bg.webp'
 import beanFillIcon from '../../assets/bean_icon_fill.svg'
 
+function beanDisplayName(bean) {
+  if (bean.name) return bean.name
+  return `${bean.origin ?? ''}${bean.farm ? ` · ${bean.farm}` : ''}`
+}
+
 function deriveRoastLevel(bean) {
-  const text = `${bean.name} ${bean.process ?? ''}`.toLowerCase()
+  const text = `${bean.name ?? ''} ${bean.origin ?? ''} ${bean.process ?? ''}`.toLowerCase()
   if (text.includes('light') || text.includes('blond') || text.includes('gold')) return 'light'
   if (text.includes('dark') || text.includes('french') || text.includes('italian')) return 'deep'
   return 'mid'
@@ -101,7 +106,7 @@ export default function BeanCard({ bean, onTap }) {
           )}
         </div>
 
-        <h2 style={styles.coffeeName}>{bean.name}</h2>
+        <h2 style={styles.coffeeName}>{beanDisplayName(bean)}</h2>
 
         <div style={styles.metaRow}>
           <span style={styles.roaster}>{bean.roaster}</span>

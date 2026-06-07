@@ -53,8 +53,11 @@ function clearDraft() {
 
 export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
   const draft = loadDraft()
+  const [beanType, setBeanType]   = useState(draft?.beanType ?? 'blend')
   const [roaster, setRoaster]     = useState(draft?.roaster ?? '')
   const [name, setName]           = useState(draft?.name ?? '')
+  const [origin, setOrigin]       = useState(draft?.origin ?? '')
+  const [farm, setFarm]           = useState(draft?.farm ?? '')
   const [weight, setWeight]       = useState(draft?.weight ?? '')
   const [roastDate, setRoastDate] = useState(draft?.roastDate ?? '')
   const [process, setProcess]     = useState(draft?.process ?? '')
@@ -69,10 +72,11 @@ export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
 
   // Persist draft on every field change
   useEffect(() => {
-    saveDraft({ roaster, name, weight, roastDate, process, selectedTags })
-  }, [roaster, name, weight, roastDate, process, selectedTags])
+    saveDraft({ beanType, roaster, name, origin, farm, weight, roastDate, process, selectedTags })
+  }, [beanType, roaster, name, origin, farm, weight, roastDate, process, selectedTags])
 
-  const canSubmit = roaster.trim() && name.trim() && weight.trim() && !submitting
+  const canSubmit = !submitting && roaster.trim() && weight.trim() &&
+    (beanType === 'blend' ? name.trim() : origin.trim())
 
   function togglePreset(tag) {
     setSelectedTags(prev =>
@@ -115,6 +119,8 @@ export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
       if (!fnErr && data && Object.keys(data).length > 0) {
         if (data.roaster)       setRoaster(data.roaster)
         if (data.name)          setName(data.name)
+        if (data.origin)        { setOrigin(data.origin); setBeanType('single_origin') }
+        if (data.farm)          setFarm(data.farm)
         if (data.total_weight_g) setWeight(String(data.total_weight_g))
         if (data.roast_date)    setRoastDate(data.roast_date)
         if (data.process)       setProcess(data.process)
@@ -147,7 +153,9 @@ export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
     const { error: insertErr } = await supabase.from('beans').insert({
       household_id:      householdId,
       added_by:          user.id,
-      name:              name.trim(),
+      name:              beanType === 'blend' ? name.trim() : null,
+      origin:            beanType === 'single_origin' ? origin.trim() : null,
+      farm:              beanType === 'single_origin' && farm.trim() ? farm.trim() : null,
       roaster:           roaster.trim(),
       total_weight_g:    grams,
       current_weight_g:  grams,
@@ -214,6 +222,20 @@ export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
         </label>
 
         <form onSubmit={handleSubmit} style={styles.form}>
+          {/* Blend / Single Origin toggle */}
+          <div style={styles.typeToggle}>
+            <button
+              type="button"
+              style={{ ...styles.typeBtn, ...(beanType === 'blend' ? styles.typeBtnActive : {}) }}
+              onClick={() => setBeanType('blend')}
+            >Blend</button>
+            <button
+              type="button"
+              style={{ ...styles.typeBtn, ...(beanType === 'single_origin' ? styles.typeBtnActive : {}) }}
+              onClick={() => setBeanType('single_origin')}
+            >Single Origin</button>
+          </div>
+
           {/* Required fields */}
           <div style={styles.fieldGroup}>
             <label style={styles.label}>Coffee Roaster <span style={styles.req}>*</span></label>
@@ -227,16 +249,41 @@ export default function AddCoffeeModal({ householdId, onClose, onAdded }) {
             />
           </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Coffee Name <span style={styles.req}>*</span></label>
-            <input
-              className="field-input"
-              style={styles.input}
-              placeholder="e.g. Ethiopia Daniso Horsa"
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
-          </div>
+          {beanType === 'blend' ? (
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Coffee Name <span style={styles.req}>*</span></label>
+              <input
+                className="field-input"
+                style={styles.input}
+                placeholder="e.g. House Blend No.3"
+                value={name}
+                onChange={e => setName(e.target.value)}
+              />
+            </div>
+          ) : (
+            <div style={styles.optionalRow}>
+              <div style={{ ...styles.fieldGroup, flex: 1, minWidth: 0 }}>
+                <label style={styles.label}>Origin <span style={styles.req}>*</span></label>
+                <input
+                  className="field-input"
+                  style={styles.input}
+                  placeholder="e.g. Ethiopia"
+                  value={origin}
+                  onChange={e => setOrigin(e.target.value)}
+                />
+              </div>
+              <div style={{ ...styles.fieldGroup, flex: 1, minWidth: 0 }}>
+                <label style={styles.label}>Farm</label>
+                <input
+                  className="field-input"
+                  style={styles.input}
+                  placeholder="e.g. Daniso Horsa"
+                  value={farm}
+                  onChange={e => setFarm(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
 
           <div style={styles.fieldGroup}>
             <label style={styles.label}>Total Weight (g) <span style={styles.req}>*</span></label>
@@ -381,6 +428,31 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
+  },
+  typeToggle: {
+    display: 'flex',
+    background: 'rgba(154,143,134,0.2)',
+    borderRadius: '99px',
+    padding: '3px',
+    gap: '2px',
+  },
+  typeBtn: {
+    flex: 1,
+    fontFamily: 'var(--font-body)',
+    fontSize: 'var(--text-small)',
+    fontWeight: 500,
+    color: 'var(--color-taupe)',
+    background: 'none',
+    border: 'none',
+    borderRadius: '99px',
+    padding: '8px 12px',
+    cursor: 'pointer',
+    transition: 'background 0.18s, color 0.18s',
+  },
+  typeBtnActive: {
+    background: 'var(--color-porcelain)',
+    color: 'var(--color-dark)',
+    boxShadow: '0 1px 4px rgba(62,50,50,0.12)',
   },
   fieldGroup: {
     display: 'flex',
