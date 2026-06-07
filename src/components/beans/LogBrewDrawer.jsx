@@ -136,8 +136,6 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
   const [selectedPortion, setSelectedPortion] = useState(null)
   const [dose, setDose] = useState(15)
   const [doseInput, setDoseInput] = useState('15')
-  const [isCustom, setIsCustom] = useState(false)
-
   function updateDose(n) {
     setDose(n)
     setDoseInput(String(n))
@@ -160,7 +158,6 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
 
   function handleMethodSelect(method) {
     setSelectedMethod(method)
-    setIsCustom(false)
     const defaultProfile = profiles.filter(p => p.method_name === method).find(p => p.portion === 1)
       ?? profiles.find(p => p.method_name === method)
     if (defaultProfile) {
@@ -170,12 +167,6 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
   }
 
   function handlePortionSelect(portion) {
-    if (portion === 'custom') {
-      setIsCustom(true)
-      setSelectedPortion('custom')
-      return
-    }
-    setIsCustom(false)
     setSelectedPortion(portion)
     const profile = profiles.find(p => p.method_name === selectedMethod && p.portion === portion)
     if (profile) updateDose(profile.grams)
@@ -186,7 +177,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
     setSubmitting(true)
     onOptimisticConsume?.(bean.id, dose)
 
-    const matchedProfile = (!isCustom && selectedMethod && selectedPortion && selectedPortion !== 'custom')
+    const matchedProfile = (selectedMethod && selectedPortion)
       ? profiles.find(p => p.method_name === selectedMethod && p.portion === selectedPortion)
       : null
 
@@ -214,7 +205,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
   }
 
   const sliderMax = Math.max(bean.current_weight_g, 1)
-  const canConfirm = dose >= 1 && dose <= bean.current_weight_g && !submitting && (isCustom || selectedPortion !== null)
+  const canConfirm = dose >= 1 && dose <= bean.current_weight_g && !submitting && selectedPortion !== null
 
   return (
     <>
@@ -253,12 +244,11 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
                 <button
                   key={method}
                   onClick={() => handleMethodSelect(method)}
-                  style={selectedMethod === method && !isCustom ? chip.selected : chip.unselected}
+                  style={selectedMethod === method ? chip.selected : chip.unselected}
                 >
                   {method}
                 </button>
-              ))}
-              <button style={chip.muted}>+</button>
+              )})
             </div>
           )}
         </div>
@@ -269,7 +259,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
           <div style={styles.chipRow}>
             {[1, 2].map(p => {
               const available = !selectedMethod || availablePortions.includes(p)
-              const active = selectedPortion === p && !isCustom
+              const active = selectedPortion === p
               return (
                 <button
                   key={p}
@@ -281,34 +271,6 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
                 </button>
               )
             })}
-            <label style={{ ...(isCustom ? chip.selected : chip.muted), display: 'inline-flex', alignItems: 'center', gap: '2px', cursor: 'text' }}>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                value={isCustom ? doseInput : ''}
-                placeholder="—"
-                className="dose-input"
-                onFocus={() => { setIsCustom(true); setSelectedPortion('custom'); setDoseInput(String(dose)) }}
-                onChange={e => {
-                  const raw = e.target.value
-                  setDoseInput(raw)
-                  const v = parseInt(raw, 10)
-                  if (!isNaN(v) && v >= 1) setDose(Math.min(sliderMax, v))
-                }}
-                onBlur={e => {
-                  const v = parseInt(e.target.value, 10)
-                  if (isNaN(v) || v < 1) setDoseInput(String(dose))
-                }}
-                style={{
-                  background: 'none', border: 'none', outline: 'none',
-                  width: '28px', fontFamily: 'var(--font-body)',
-                  fontSize: '16px', fontWeight: 400,
-                  color: 'inherit', textAlign: 'center', padding: 0,
-                }}
-              />
-              <span>g</span>
-            </label>
           </div>
         </div>
 
