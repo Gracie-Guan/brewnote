@@ -128,7 +128,7 @@ const ruler = {
 
 // ─────────────────────────────────────────
 
-export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdated, onBeanArchived }) {
+export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdated, onBeanArchived, onOptimisticConsume }) {
   const { user } = useAuth()
   const { profiles, loading: profilesLoading } = useBrewProfiles(householdId)
 
@@ -184,6 +184,7 @@ export default function LogBrewDrawer({ bean, householdId, onClose, onBeanUpdate
   async function handleConfirm() {
     if (!dose || dose < 1 || submitting) return
     setSubmitting(true)
+    onOptimisticConsume?.(bean.id, dose)
 
     const matchedProfile = (!isCustom && selectedMethod && selectedPortion && selectedPortion !== 'custom')
       ? profiles.find(p => p.method_name === selectedMethod && p.portion === selectedPortion)

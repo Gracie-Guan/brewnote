@@ -14,6 +14,25 @@ export default function BeansPage() {
   const { beans, householdId, loading, error, refetch } = useBeans('active')
   const { setHideLogBrew } = useAppUI()
   const [focusedBean, setFocusedBean] = useState(null)
+  const [weightOverrides, setWeightOverrides] = useState({})
+
+  // Clear overrides once real data arrives from refetch
+  useEffect(() => { setWeightOverrides({}) }, [beans])
+
+  const displayBeans = beans.map(b =>
+    weightOverrides[b.id] !== undefined
+      ? { ...b, current_weight_g: weightOverrides[b.id] }
+      : b
+  )
+
+  function optimisticConsume(beanId, gramsUsed) {
+    const bean = beans.find(b => b.id === beanId)
+    if (!bean) return
+    setWeightOverrides(prev => ({
+      ...prev,
+      [beanId]: Math.max(0, bean.current_weight_g - gramsUsed),
+    }))
+  }
   const [selectedBean, setSelectedBean] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showLogBrew, setShowLogBrew] = useState(false)
@@ -78,7 +97,7 @@ export default function BeansPage() {
         <EmptyState />
       ) : (
         <BeanCarousel
-          beans={beans}
+          beans={displayBeans}
           onCardTap={setSelectedBean}
           onFocusChange={setFocusedBean}
         />
@@ -106,6 +125,7 @@ export default function BeansPage() {
           bean={activeFocusedBean}
           householdId={householdId}
           onClose={() => setShowLogBrew(false)}
+          onOptimisticConsume={optimisticConsume}
           onBeanUpdated={refetch}
           onBeanArchived={handleBeanArchived}
         />
