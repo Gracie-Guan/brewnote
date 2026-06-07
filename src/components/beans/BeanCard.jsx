@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import beansLight from '../../assets/beans-light.svg'
 import beansMid from '../../assets/beans-mid.svg'
 import beansDeep from '../../assets/beans-deep.svg'
@@ -41,19 +41,29 @@ export default function BeanCard({ bean, onTap }) {
   })
   const fillHeight = Math.round(fillPercent * 490)
 
+  const [didMount, setDidMount] = useState(false)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setDidMount(true))
+    return () => cancelAnimationFrame(id)
+  }, [])
+
   return (
     <div style={styles.card} onClick={onTap} role="button" tabIndex={0}>
 
       {/* Layer 1 — jar clip: hard clips bean fill to jar shape, overflow:hidden here */}
       <div style={styles.jarClip}>
-        <div style={{ ...styles.beanFill, height: `${fillHeight}px` }}>
-          <img
-            src={beanSvg}
-            alt=""
-            aria-hidden="true"
-            style={styles.beanPattern}
-          />
-        </div>
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: `${fillHeight}px`,
+          transition: didMount ? 'height 0.8s ease' : 'none',
+          backgroundImage: `url(${beanSvg})`,
+          backgroundSize: '100% 490px',
+          backgroundPosition: 'bottom center',
+          backgroundRepeat: 'no-repeat',
+        }} />
       </div>
 
       {/* Layer 2 — glass jar (lid + body): handles frosted effect + shadow, NOT a clip */}
@@ -146,24 +156,6 @@ const styles = {
     zIndex: 1,
   },
 
-  // beanFill — lives inside jarClip, fills from bottom to fillHeight
-  beanFill: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    overflow: 'hidden',
-  },
-  beanPattern: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    height: '490px',
-    objectFit: 'cover',
-    objectPosition: 'bottom',
-    display: 'block',
-  },
 
   // Jar lid
   lid: {
